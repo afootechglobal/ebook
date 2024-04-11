@@ -1,0 +1,46 @@
+  // const navigate = useNavigate();
+    // const [fetchData, setFetchData] = useState([]);
+
+    // useEffect(() => {
+    //     const sessionToken = JSON.parse(sessionStorage.getItem('userLoginSession'));
+    //     if (!sessionToken) {
+    //         sessionStorage.removeItem('userLoginSession');
+    //         navigate('/user/login');
+    //         return;
+    //     } 
+
+    //     const fetchExamApi = async () => {
+    //         const apiUrl = 'http://localhost/api/user/?access_key=' + sessionToken.access_key;
+    //         const endPoint = {
+    //             action: 'fetch_subscription_api',
+    //             sub_topic_id: '',
+    //             view_report: 'view_report',
+    //         };
+
+    //         try {
+    //             const responseData = await axios.post(apiUrl, endPoint);
+    //             const getCheck = responseData.data.check;
+    //             const result = responseData.data.result;
+               
+    //             if (getCheck > 0) {
+    //                 if (result === true) {
+    //                     setFetchData(responseData.data.data);
+    //                 } else {
+    //                     alert('NO RECORD FOUND!');
+    //                 }
+    //             } else {
+    //                 sessionStorage.removeItem('userLoginSession');
+    //                 navigate('/user/login');
+    //             }
+    //         } catch (error) {
+    //             console.error('Error:', error);
+    //         }
+    //     };
+    //     fetchExamApi();
+
+
+
+
+
+
+    // }, [navigate]);

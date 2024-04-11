@@ -1,0 +1,715 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { GetFetchUserLoginProfile, GetUserRegExamApi, GetExamSubscriptionApi, GetAllTransactionApi, GetAllWalletHistoryApi } from './ApiFunction';
+import ShowAlert from './alert';
+
+import "../Portal/Style/Paramount.css";
+import DashboardUserInfo from './DashboardUserInfo';
+
+
+
+const UploadedFilesUrl = 'http://localhost:3000/UploadedFiles';
+
+
+const numberwithcomma = (amount) => {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+
+export const UserProfile = () => {
+
+    const [successMessage, setSuccessMessage] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const alertClose = () => {
+        setShowAlert(false);
+    };
+
+
+    const { getUserProfile, setgetUserProfile, isLoading: AjaxLoader1 } = GetFetchUserLoginProfile('fetch_user_api');
+
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setgetUserProfile({ ...getUserProfile, [name]: value });
+    };
+    const isValidEmail = (email) => {
+        // Regular expression for a simple email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+
+
+    /////////////// phone number js check .//////////
+    const [isValid, setIsValid] = useState(true);
+
+    const isValidPhoneNumber = (phoneNumber) => {
+        // Regular expression for a phone number containing only numeric characters
+        const phoneRegex = /^\d+$/;
+        return phoneRegex.test(phoneNumber);
+    };
+
+    const handleKeyPress = (e) => {
+        const inputMobile = e.key;
+        const valid = isValidPhoneNumber(inputMobile);
+        if (!valid) {
+            setIsValid(null);
+            e.preventDefault();
+            return;
+        }
+        setIsValid(valid);
+    };
+
+
+    const [selectedFilePix, setSelectedFilePix] = useState(null);
+    const [previewImage, setPreviewImage] = useState('');
+  
+    // const handleFileChange = (e) => {
+    //   const file = e.target.files[0];
+  
+    //   // Update the selected file
+    //   setSelectedFilePix(file);
+    //   // Read the selected file and set the preview image
+    //   const reader = new FileReader();
+    //   reader.onloadend = () => {
+    //     setPreviewImage(reader.result);
+    //   uploadPix()
+
+    //   };
+    //   reader.readAsDataURL(file);
+    // };
+//   const handleFileChange = (e) => {
+//     const file = e.target.files[0];
+
+//   // Check if a file is selected
+//   if (file) {
+//     // Define the allowed image file extensions
+//     const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+//     // Get the file extension from the file name
+//     const fileExtension = file.name.split('.').pop().toLowerCase();
+
+//     // Check if the file extension is in the allowed extensions array
+//     if (allowedExtensions.includes(fileExtension)) {
+//       // Update the selected file
+//       setSelectedFilePix(file);
+
+//       // Read the selected file and set the preview image
+//       const reader = new FileReader();
+//       reader.onloadend = () => {
+//         setPreviewImage(reader.result);
+//       alert(`Selected image: ${file.name}`);
+
+//          uploadPix(file)
+//       };
+//       reader.readAsDataURL(file);
+//     } else {
+//       // Display an error message or handle the invalid file extension case
+//       alert('Invalid file type. Please select a valid image file.');
+//       // You may choose to clear the selected file and reset the preview here
+//     }
+//   }
+//   };
+
+const [file, setFile] = useState(null);
+    function handleFileChange(e) {
+        console.log(e.target.files);
+        setFile(URL.createObjectURL(e.target.files[0]));
+        uploadPix()
+    }
+  const uploadPix = async () => {
+    const sessionToken = JSON.parse(sessionStorage.getItem('userLoginSession'));
+    const apiUrl = 'http://localhost/api/user/?access_key=' + sessionToken.access_key;
+
+    // const formData = new FormData();
+    // formData.append('action', 'upload_passport_api');
+    // formData.append('passport', file);
+
+    // try {
+    //     const responseData = await axios.post(apiUrl, formData, {
+    //         headers: {
+    //             'Content-Type': 'multipart/form-data', // Ensure proper content type for FormData
+    //         },
+    //     });
+
+    //     const message1 = responseData.data.message1;
+    //     const passport = responseData.data.passport;
+
+    //     alert(message1+'   ' +passport);
+    // } catch (error) {
+    //     console.error('Error:', error);
+    // } finally {
+    //     setIsLoading(false);
+    // }
+
+   
+    const formData = new FormData();
+    formData.append('action', 'upload_passport_api');
+    formData.append('passport', file);
+    try {
+        // Use your backend API endpoint
+        const response = await axios.post(apiUrl, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        console.log(response.data);
+        const message1 = response.data.message1;
+        const passport = response.data.passport;
+
+        alert(response.data);
+    } catch (error) {
+        console.error('Error uploading image:', error);
+    }
+};
+
+
+    const updateProfile = async () => {
+        setIsLoading(true);
+        const sessionToken = JSON.parse(sessionStorage.getItem('userLoginSession'));
+        const apiUrl = 'http://localhost/api/user/?access_key=' + sessionToken.access_key;
+
+        const { fullname, email, mobile } = getUserProfile;
+
+        if (!fullname) {
+            setSuccessMessage({
+                message1: 'FULLNAME ERROR!',
+                message2: 'Fill this fields to continue',
+                result: true,
+                onClose: { alertClose },
+            });
+            setShowAlert(getUserProfile);
+            setIsLoading(false);
+            return;
+        } else if (!email) {
+            setSuccessMessage({
+                message1: 'EMAIL ERROR!',
+                message2: 'Fill this fields to continue',
+                result: true,
+                onClose: { alertClose },
+            });
+            setShowAlert(getUserProfile);
+            setIsLoading(false);
+            return;
+        } else if (!isValidEmail(email)) {
+            setSuccessMessage({
+                message1: 'EMAIL ERROR!',
+                message2: 'Invalid email address',
+                result: true,
+                onClose: { alertClose },
+            });
+
+            setShowAlert(getUserProfile);
+            setIsLoading(false);
+            return;
+
+        } else if (!isValidPhoneNumber(mobile)) {
+            setSuccessMessage({
+                message1: 'PHONE NUMBER ERROR!',
+                message2: 'IInvalid phone number',
+                result: true,
+                onClose: { alertClose },
+            });
+            setShowAlert(getUserProfile);
+            setIsLoading(false);
+            return;
+        } else {
+
+            const endPoint = {
+                action: 'update_user_api',
+                fullname,
+                email,
+                mobile,
+            };
+            try {
+                const endpoint = await axios.post(apiUrl, endPoint);
+                const responseData = endpoint.data;
+                const result = responseData.result;
+
+                if (result === true) {
+                    setSuccessMessage(responseData);
+                    setShowAlert(responseData);
+                    setgetUserProfile({
+                        // ...getUserProfile,
+                        fullname: responseData.data.fullname,
+                        email: responseData.data.email,
+                        mobile: responseData.data.mobile,
+                    });
+
+                } else {
+                    setSuccessMessage(responseData);
+                    setShowAlert(responseData);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        // return {setgetUserProfile};
+    }
+   
+   
+   
+
+
+    
+
+
+    if (AjaxLoader1) {
+        return <p>Loading...</p>
+    }
+    // const renderUserProfile = (getUserProfile) => {
+    //     return (
+    //         <div className="detail">
+    //             <h3 id="login_user_fullname">{getUserProfile.fullname}</h3>
+    //             <span><i className="fa fa-clock-o"></i> Last Login Date </span> - <span id="login_user_login_time"> {getUserProfile.last_login}</span>
+    //         </div>
+    //     );
+    // };
+
+  
+
+    return (
+
+        <>
+
+ {/* {<DashboardUserInfo />&& renderUserProfile(getUserProfile)} */}
+            <div className="table-div animated fadeIn" id="search-content">
+                <div className="div-in">
+                    <div className="container-title title2"><i className="bi bi-person-square"></i> MY ROFILE </div>
+                    <br clear="all" />
+                    <div className="user-account-div">
+                        <div className="profile-div">
+                            <label>
+                            {/* <div className="profile-pix" id="profile_pix"><img src={previewImage || `${UploadedFilesUrl}/UserPix/${getUserProfile.passport}`} alt={getUserProfile.fullname} id="passportimg4" /></div> */}
+                                <div className="profile-pix" id="profile_pix">
+                                
+                                        {/* {getUserProfile.passport ? (
+                                                // Render image from the database if available
+                                                <img src={previewImage || `${UploadedFilesUrl}/UserPix/${getUserProfile.passport}`} alt={getUserProfile.fullname}  />
+                                            ) : (
+                                                // Render image from the local directory if not available in the database
+                                                <img src={previewImage || `${UploadedFilesUrl}/UserPix/friends.png`} alt={getUserProfile.fullname}  />
+                                            )} */}
+                                <img src={file} />
+                            {/* {file && <img src={URL.createObjectURL(file)} alt="Selected" />} */}
+                                </div>
+                                <input type="file" id="fileInput" onChange={handleFileChange}   style={{ display: 'none' }} />
+                            </label>
+                        </div>
+
+
+                        <div className="profile-div info-div">
+                            <div className="title">
+                                FULLNAME: <span>*</span>
+                            </div>
+                            <input
+                                id="fullname"
+                                type="text"
+                                name="fullname"
+                                value={getUserProfile.fullname}
+                                onChange={handleInputChange}
+                                className="text_field"
+                                placeholder="FULLNAME"
+                                title="FULLNAME"
+                            />
+                            <div className="title">
+                                EMAIL ADDRESS: <span>*</span>
+                            </div>
+                            <input
+                                id="email"
+                                type="text"
+                                name="email"
+                                value={getUserProfile.email}
+                                onChange={handleInputChange}
+                                className="text_field"
+                                placeholder="EMAIL ADDRESS"
+                                title="EMAIL ADDRESS"
+                            />
+                            <div className="title">
+                                PHONE NUMBER: <span>*</span>
+                                {isValid ? null :
+                                    <span style={{ float: 'right', fontSize: '10px', color: '#f00' }} id="verify_mobile_info">
+                                        Phone number not accepted!
+                                    </span>
+                                }
+                            </div>
+                            <input
+                                id="mobile"
+                                type="text"
+                                name="mobile"
+                                value={getUserProfile.mobile}
+                                onKeyPress={handleKeyPress}
+                                onChange={handleInputChange}
+                                className="text_field"
+                                placeholder="PHONE NUMBER"
+                                title="PHONE NUMBER"
+                            />
+                            <button className="action-btn" type="button" id="update_btn" disabled={AjaxLoader1} onClick={updateProfile}>
+                                {isLoading ? 'UPDATING' : 'UPDATE PROFILE'}
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {showAlert &&
+                <ShowAlert
+                    message={successMessage.message1}
+                    additionalMessage={successMessage.message2}
+                    alertResult={showAlert.result}
+                    onClose={alertClose}
+                />
+            }
+        </>
+
+    )
+ 
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const UserExam = () => {
+    const { FetchData: userRegExamDetails, isLoading: AjaxLoader2 } = GetExamSubscriptionApi('fetch_exam_api');
+
+    if (AjaxLoader2) {
+        return <p>Loading...</p>
+    }
+
+    return (
+        <>
+
+            <div className="table-div animated fadeIn" id="search-content">
+                <div className="div-in">
+                    <div className="container-title title2"><i className="bi-pencil-square"></i>  EXAM / VIDEO </div>
+                    <div className="input-search-div">
+                        <input id="search_txt" style={{ display: 'none' }} onkeyup="_fetch_users_list()" type="text" className="text_field" placeholder="Type here to search..." title="Type here to search" />
+                        <button type="button" className="top-btn" onClick="_get_page('exam_category', 'exam')">Subcribe <i className="bi bi-box-arrow-in-up-right"></i></button>
+                    </div>
+
+                    <div className="table-div-in">
+                        <table className="table" cellspacing="0" id="fetch_exam_details_with_limit" >
+                            <tr className="tb-col">
+                                <td>SN</td>
+                                <td>EXAM</td>
+                                <td>NO. OF SUBJECT</td>
+                                <td>ACTION</td>
+
+                            </tr>
+
+                            {userRegExamDetails.map((record, index) => (
+                                <tr key={record.exam_id}>
+
+                                    <td>{index + 1}</td>
+                                    <td className="logo-tb logo-tb2">
+                                        <div className="logo-div">
+                                            {record.exam_passport ? (
+                                                // Render image from the database if available
+                                                <img src={`${UploadedFilesUrl}/ExamPix/${record.exam_passport}`} alt={`${record.abbreviation} LOGO`} />
+                                            ) : (
+                                                // Render image from the local directory if not available in the database
+                                                <img src={`${UploadedFilesUrl}/ExamPix/default_pix.jpg`} alt={`${record.abbreviation} LOGO`} />
+                                            )}
+                                        </div>
+                                        <span id="">{record.abbreviation.toUpperCase()}</span>
+                                    </td>
+                                    <td>{record.exam_subject_count.toUpperCase()}</td>
+
+                                    <td>
+                                        <button className="btn">
+                                            <i className="bi bi-play"></i> VIEW
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+
+
+                        </table>
+                    </div>
+                    <div className="bottom-count-div">
+                        <span id="dashboard_sub_count">{userRegExamDetails.length}</span> of <span id="dashboard_sub_total_count">{userRegExamDetails.length}</span>
+
+
+                        <button className="top-btn bottom-btn" onClick="_get_page('exam_category', 'exam')" id="exam" type="button" ><i className="bi bi-eye"></i> View All</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </>
+
+    )
+
+};
+
+
+
+
+
+
+
+
+
+
+export const ExamSubscriptions = () => {
+    const { FetchData: userExamSubDetails, isLoading: AjaxLoader1 } = GetUserRegExamApi('fetch_subscription_api');
+
+    if (AjaxLoader1) {
+        return <p>Loading...</p>
+    }
+
+    return (
+
+        <div className="table-div animated fadeIn" id="search-content">
+            <div className="div-in">
+                <div className="container-title title2"><i className="bi-pencil-square"></i>  EXAM SUBSCRIPTION </div>
+                <div className="input-search-div">
+                    <input id="search_txt" style={{ display: 'none' }} onkeyup="_fetch_users_list()" type="text" className="text_field" placeholder="Type here to search..." title="Type here to search" />
+                    <button type="button" className="top-btn" onClick="_get_page('exam_category', 'exam')">Subcribe <i className="bi bi-box-arrow-in-up-right"></i></button>
+                </div>
+
+                <div className="table-div-in">
+                    <table className="table" cellspacing="0" id="fetch_exam_details_with_limit" >
+                        <tr className="tb-col">
+                            <td>SN</td>
+                            <td>EXAM</td>
+                            <td>SUBJECT</td>
+                            <td>TOPIC</td>
+                            <td>SUB-TOPIC</td>
+                            <td>DATE</td>
+                            <td>DUE DATE</td>
+                            <td>STATUS</td>
+                            <td>ACTION</td>
+                        </tr>
+
+                        {userExamSubDetails.map((record, index) => (
+                            <tr key={record.exam_id}>
+
+                                <td>{index + 1}</td>
+                                <td className="logo-tb logo-tb2">
+                                    <div className="logo-div">
+                                        {record.exam_passport ? (
+                                            // Render image from the database if available
+                                            <img src={`${UploadedFilesUrl}/ExamPix/${record.exam_passport}`} alt={`${record.abbreviation} LOGO`} />
+                                        ) : (
+                                            // Render image from the local directory if not available in the database
+                                            <img src={`${UploadedFilesUrl}/ExamPix/default_pix.jpg`} alt={`${record.abbreviation} LOGO`} />
+                                        )}
+                                    </div>
+                                    <span id="">{record.abbreviation.toUpperCase()}</span>
+                                </td>
+                                <td>{record.subject_name.toUpperCase()}</td>
+                                <td>{record.topic_name.toUpperCase()}</td>
+                                <td>{record.sub_topic_name.toUpperCase()}</td>
+                                <td>{record.date}</td>
+                                <td>{record.due_date}</td>
+                                <td>
+                                    <div className={`status-div ${record.status_name}`}>
+                                        {record.status_name.toUpperCase()}
+                                    </div>
+                                </td>
+                                <td>
+                                    <button className="btn">
+                                        <i className="bi bi-play"></i> PLAY
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+
+
+                    </table>
+                </div>
+                <div className="bottom-count-div">
+                    <span id="dashboard_sub_count">{userExamSubDetails.length}</span> of <span id="dashboard_sub_total_count">{userExamSubDetails.length}</span>
+
+
+                    <button className="top-btn bottom-btn" onClick="_get_page('exam_category', 'exam')" id="exam" type="button" ><i className="bi bi-eye"></i> View All</button>
+                </div>
+            </div>
+
+        </div>
+
+
+    )
+
+};
+
+
+
+
+
+
+
+
+export const Transactions = () => {
+    const { FetchData: TransactionDetails, isLoading: AjaxLoader3 } = GetAllTransactionApi('fetch_transaction_history_api');
+
+    if (AjaxLoader3) {
+        return <p>Loading...</p>;
+    }
+    return (
+        <>
+
+            <div className="table-div animated fadeIn" id="search-content">
+                <div className="div-in">
+                    <div className="container-title title2"><i className="bi bi-credit-card"></i>  TRANSACTIONS  </div>
+                    <div className="input-search-div">
+                        <input id="search_txt" style={{ display: 'none' }} onkeyup="_fetch_users_list()" type="text" className="text_field" placeholder="Type here to search..." title="Type here to search" />
+                        <button type="button" className="top-btn" onClick="_get_page('exam_category', 'exam')">Subcribe <i className="bi bi-box-arrow-in-up-right"></i></button>
+                    </div>
+
+                    <div className="table-div-in">
+                        <table className="table" cellspacing="0" id="fetch_exam_details_with_limit" >
+                            <tr className="tb-col">
+                                <td>SN</td>
+                                <td>DATE</td>
+                                <td>TRANSACTION ID</td>
+                                <td>TRANSACTION TYPE</td>
+                                <td>TRANSACTION METHOD</td>
+                                <td>AMOUNT</td>
+                                <td>STATUS</td>
+                                <td>ACTION</td>
+
+                            </tr>
+
+                            {TransactionDetails.map((record, index) => (
+                                <tr key={record.exam_id}>
+
+                                    <td>{index + 1}</td>
+                                    <td>{record.date}</td>
+                                    <td>{record.payment_id}</td>
+                                    <td>{record.transaction_type_name}</td>
+                                    <td>{record.fund_method_name}</td>
+                                    <td>{`₦ ${numberwithcomma(record.amount)}`}</td>
+
+                                    <td><div className={`status-div ${record.status_name}`}>{record.status_name}</div></td>
+
+                                    <td>
+                                        <button className="btn">
+                                            <i className="bi bi-eye"></i> DETAILS
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+
+
+                        </table>
+                    </div>
+                    <div className="bottom-count-div">
+                        <span id="dashboard_sub_count">{TransactionDetails.length}</span> of <span id="dashboard_sub_total_count">{TransactionDetails.length}</span>
+
+
+                        <button className="top-btn bottom-btn" onClick="_get_page('exam_category', 'exam')" id="exam" type="button" ><i className="bi bi-eye"></i> View All</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </>
+
+    )
+
+};
+
+
+
+
+
+
+export const WalletHistory = () => {
+    const { FetchData: WalletHistoryDetails, isLoading: AjaxLoader4 } = GetAllWalletHistoryApi('fetch_wallet_history_api');
+
+    if (AjaxLoader4) {
+        return <p>Loading...</p>;
+    }
+    return (
+        <>
+
+            <div className="table-div animated fadeIn" id="search-content">
+                <div className="div-in">
+                    <div className="container-title title2"><i className="bi bi-credit-card"></i>  WALLET HISTORY  </div>
+                    <div className="input-search-div">
+                        <input id="search_txt" style={{ display: 'none' }} onkeyup="_fetch_users_list()" type="text" className="text_field" placeholder="Type here to search..." title="Type here to search" />
+                        <button type="button" className="top-btn" onClick="_get_page('exam_category', 'exam')">Subcribe <i className="bi bi-box-arrow-in-up-right"></i></button>
+                    </div>
+
+                    <div className="table-div-in">
+                        <table className="table" cellspacing="0" id="fetch_exam_details_with_limit" >
+                            <tr className="tuple">
+                                <td>SN</td>
+                                <td>DATE</td>
+                                <td>TRANSACTION ID</td>
+                                <td>BALANCE BEFORE</td>
+                                <td>AMOUNT LOADED</td>
+                                <td>BALANCE AFTER</td>
+                                <td>TRANSACTION TYPE</td>
+                                <td>STATUS</td>
+                            </tr>
+
+
+
+
+                            {WalletHistoryDetails.map((record, index) => (
+                                <tr key={record.exam_id}>
+
+                                    <td>{index + 1}</td>
+                                    <td>{record.date}</td>
+                                    <td>{record.payment_id}</td>
+                                    <td>{`₦ ${numberwithcomma(record.balance_before)}`}</td>
+                                    <td className="amount_load">{`₦ ${numberwithcomma(record.amount)}`}</td>
+                                    <td>{`₦ ${numberwithcomma(record.balance_after)}`}</td>
+                                    <td>{record.transaction_type_name}</td>
+
+                                    <td><div className={`status-div ${record.status_name}`}>{record.status_name}</div></td>
+
+                                </tr>
+                            ))}
+
+
+                        </table>
+                    </div>
+                    <div className="bottom-count-div">
+                        <span id="dashboard_sub_count">{WalletHistoryDetails.length = 5}</span> of <span id="dashboard_sub_total_count">{WalletHistoryDetails.length > 5}</span>
+                        <button className="top-btn bottom-btn" onClick="_get_page('exam_category', 'exam')" id="exam" type="button" ><i className="bi bi-eye"></i> View All</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </>
+
+    )
+
+};

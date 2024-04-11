@@ -1,0 +1,10 @@
+https://laravel.com/docs/4.2/quick ======= LARAVEL QUICK START
+
+https://kinsta.com/blog/laravel-developer/ ====== LARAVEL DOC1
+
+https://kinsta.com/application-hosting/laravel/ ====== LARAVEL HOSTING WEBSITE
+
+
+https://learn.microsoft.com/en-us/windows/wsl/install ==== LARAVEL WSL
+
+https://laravel.com/docs/8.x/installation ==== LARAVEL INSTALLATION

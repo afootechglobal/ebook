@@ -1,0 +1,16 @@
+CREATE VIEW subscription_views_tab AS
+
+SELECT  a.*, b.abbreviation, b.exam_passport, c.subject_name, d.topic_name, e.sub_topic_name FROM user_subscription_tab a, exam_tab b, subject_tab c, topic_tab d,  sub_topic_tab e,  exam_subject_tab f, user_tab g
+WHERE
+
+b.exam_id=f.exam_id AND c.subject_id=f.subject_id AND e.subject_id=f.subject_id  AND d.topic_id=e.topic_id AND e.sub_topic_id=a.sub_topic_id AND a.user_id=g.user_id AND a.user_id='USER00120230831123636' AND a.status_id=2;
+
+
+(SELECT DISTINCT(topic_id) FROM sub_topic_video_tab) UNION (
+
+
+
+
+
+SELECT a.*, b.abbreviation, b.exam_passport, c.subject_name, d.topic_name, e.sub_topic_name, g.status_name FROM user_subscription_tab a, exam_tab b, subject_tab c, topic_tab d,  sub_topic_tab e,  exam_subject_tab f, setup_status_tab g WHERE
+				b.exam_id=f.exam_id AND d.exam_id=f.exam_id AND c.subject_id=f.subject_id AND e.subject_id=f.subject_id  AND d.topic_id=e.topic_id AND e.sub_topic_id=a.sub_topic_id AND a.status_id=g.status_id AND a.user_id='USER00420231018042418' AND a.status_id=1  ORDER BY a.date DESC;

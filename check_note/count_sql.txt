@@ -1,0 +1,4 @@
+SELECT COUNT(*) AS total_staff,
+    COUNT(CASE WHEN status_id = 1 THEN 1 END) AS ActiveStaffCount,
+    COUNT(CASE WHEN status_id = 2 THEN 1 END) AS SuspendedStaffCount
+FROM staff_tab;

@@ -1,0 +1,30 @@
+SELECT
+    a.*, 
+    CASE
+	WHEN b.sub_topic_id IS NOT NULL THEN 'yes'
+	ELSE 'no'
+	END AS subscription,
+    b.start_date,
+    b.due_date,
+    c.abbreviation,
+    c.exam_passport,
+    d.subject_name,
+    e.topic_name,
+    f.status_name
+FROM sub_topic_tab a
+-- Join employees to departments using LEFT JOIN
+LEFT JOIN user_subscription_tab b ON a.sub_topic_id = b.sub_topic_id
+-- Join assignments to employees using LEFT JOIN
+LEFT JOIN topic_tab e ON a.topic_id= e.topic_id
+
+LEFT JOIN exam_subject_tab h ON a.subject_id= h.subject_id 
+
+LEFT JOIN subject_tab d ON h.subject_id= d.subject_id
+
+LEFT JOIN exam_tab c ON e.exam_id = c.exam_id AND h.exam_id=c.exam_id
+
+LEFT JOIN payment_tab g ON g.sub_topic_id = b.sub_topic_id AND b.user_id=g.user_id AND g.sub_topic_id=a.sub_topic_id  
+
+LEFT JOIN setup_status_tab f ON b.status_id = f.status_id  WHERE
+
+ a.sub_topic_id='SUBTOPIC00120231027025131' LIMIT 1;

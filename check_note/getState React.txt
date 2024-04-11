@@ -1,0 +1,15 @@
+     // const [isCollapsed, setIsCollapsed] = useState(true);
+
+        // const toggleCollapse = () => {
+        // setIsCollapsed(!isCollapsed);
+        // };
+
+        // const [collapsedStates, setCollapsedStates] = useState(Array(SubjectTopicstDeatils.length).fill(true));
+
+        // const toggleCollapse = (index) => {
+        //   setCollapsedStates((prevStates) => {
+        //     const newStates = [...prevStates];
+        //     newStates[index] = !newStates[index];
+        //     return newStates;
+        //   });
+        // };

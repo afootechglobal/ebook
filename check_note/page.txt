@@ -1,0 +1,72 @@
+
+// ////// CALL PAYSTACK /////////////////////
+
+// function _PayWithPaystack(fullname, payment_id, payment_key, email, mobile, amount, currency_id) {
+// 	var handler = PaystackPop.setup({
+// 		key: payment_key,
+// 		email: email,
+// 		amount: amount * 100, //amt in kobo
+// 		ref: payment_id,
+// 		currency: currency_id, // Use GHS for Ghana Cedis or USD for US Dollars
+// 		metadata: {
+// 			custom_fields: [
+// 				{
+// 					display_name: fullname,
+// 					variable_name: "mobile_number",
+// 					value: mobile
+// 				}
+// 			]
+// 		},
+// 		callback: function (response) { //success
+// 			var stack_pay_ref = $.trim(response.reference);
+// 			_call_payment_success(payment_id, stack_pay_ref, amount);
+// 		},
+// 		onClose: function () { //update to cancelled.
+// 			_call_payment_cancelled(payment_id);
+// 			return false;
+// 		}
+// 	});
+// 	handler.openIframe();
+// }
+
+
+// function _call_payment_success(payment_id, stack_pay_ref, amount) {
+// 	var action = 'wallet_payment_success_api';
+// 	var dataString = 'action=' + action + '&payment_id=' + payment_id + '&stack_pay_ref=' + stack_pay_ref + '&amount=' + amount;
+// 	$.ajax({
+// 		type: "POST",
+// 		url: user_api,
+// 		data: dataString,
+// 		cache: false,
+// 		success: function (info) {
+// 			_get_form('load_user_wallet_success');
+// 		}
+// 	});
+// }
+
+
+// function _call_payment_cancelled(payment_id) {
+// 	var action = 'wallet_payment_cancelled_api';
+// 	var dataString = 'action=' + action + '&payment_id=' + payment_id;
+// 	$.ajax({
+// 		type: "POST",
+// 		url: user_api,
+// 		data: dataString,
+// 		cache: false,
+// 		success: function (info) {
+// 			var result = info.result;
+// 			var message1 = info.message1;
+// 			var message2 = info.message2;
+// 			if(result==true){
+// 				$('#not-success-div').html('<div><i class="bi-x-circle"></i></div>' + message1 + '<br /> <span>' + message2 + '</span>').fadeIn(500).delay(5000).fadeOut(100);
+// 			}else{
+// 				$('#warning-div').html('<div><i class="bi-exclamation-circle"></i></div>' + message1 + '<br /> <span>' + message2 + '</span>').fadeIn(500).delay(3000).fadeOut(100);
+// 			}
+// 			// $('#load_wallet_btn').html('<i class="bi-credit-card"></i> MAKE PAYMENT');
+// 			// document.getElementById('load_wallet_btn').disabled = false;
+// 		}
+// 	});
+// }
+// $otp=rand(111111,999999);
+// mysqli_query($conn,"UPDATE order_summary_tab SET delivery_otp='$delivery_otp', status_id='PP', date=NOW() WHERE user_id='$s_customer_id' AND order_id='$shopsession'")or die (mysqli_error($conn));
+		

@@ -1,0 +1,121 @@
+case 'fetch_sub_topic_video_api':
+				$topic_id=trim(strtoupper($_POST['topic_id']));
+				$sub_topic_id=trim(strtoupper($_POST['sub_topic_id']));
+				$video_id=trim(strtoupper($_POST['video_id']));
+				$status_id=($_POST['status_id']);
+				$search_txt=($_POST['search_txt']);
+
+				$search_like="(video_title like '%$search_txt%')";
+
+				$query=mysqli_query($conn,"SELECT * FROM sub_topic_video_tab WHERE status_id LIKE '%$status_id%' AND $search_like ORDER BY video_title ASC ")or die ("cannot select");
+					$count=mysqli_num_rows($query);
+						if ($count==0){///start if 1
+							$response['response']=213;
+							$response['result']=false;
+							$response['message']="NO RECORD FOUND!!!"; 
+						} else {///else 1
+							/// write sql statement and function that will return all subject here
+							if ($video_id=='') {///start if 2
+								$query=mysqli_query($conn,"SELECT a.*, b.video_volume_name, c.subscription_pricing_name FROM sub_topic_video_tab a, setup_video_volume_tab b, setup_subscription_pricing_tab c WHERE a.sub_topic_id LIKE '%$sub_topic_id%' AND a.topic_id LIKE '%$topic_id%' AND a.video_volume_id=b.video_volume_id AND a.subscription_pricing_id=c.subscription_pricing_id ORDER BY video_volume_id ASC")or die (mysqli_error($conn));
+								$check_query=mysqli_num_rows($query);
+								if ($check_query>0) { // start if 3
+									$response['response']=214;
+									$response['result']=true;
+									while($fetch_query=mysqli_fetch_all($query, MYSQLI_ASSOC)){
+										$response['data']=$fetch_query;
+									}
+								}else{ // Else 3
+									$response['response']=215;
+									$response['result']=false;
+									$response['message']="NO RECORD FOUND!!!"; 
+								}// End if 3
+						
+							} else {///else 2
+									$query=mysqli_query($conn,"SELECT a.*, b.status_name FROM sub_topic_video_tab a, setup_status_tab b WHERE a.video_id LIKE '%$video_id%' AND a.sub_topic_id LIKE '%$sub_topic_id%' AND a.status_id=b.status_id AND a.status_id LIKE '%$status_id%'")or die (mysqli_error($conn));
+									$response['response']=216;
+									$response['result']=true;
+									while($fetch_query=mysqli_fetch_assoc($query)){
+									$response['data']=$fetch_query;
+								} 
+							} //end if 2
+						
+						}
+			break;
+
+
+
+
+
+
+function _get_fetch_sub_topic_video(video_id,topic_id,sub_topic_id) {
+  var action = "fetch_sub_topic_video_api";
+  var search_txt = $("#search_txt").val();
+  var status_id = $("#status_id").val();
+  if (search_txt.length > 2 || search_txt == "") {
+
+    var dataString ="action=" + action + "&video_id=" + video_id + "&topic_id=" + topic_id + "&sub_topic_id=" + sub_topic_id + "&status_id=" + status_id + "&search_txt=" + search_txt;
+
+    $.ajax({
+      type: "POST",
+      url: api,
+      data: dataString,
+      dataType: "json",
+      cache: false,
+      success: function (info) {
+        var fetch = info.data;
+        var result = info.result;
+        var message = info.message;
+        var text = "";
+
+        if (result == true) {
+          for (var i = 0; i < fetch.length; i++) {
+            var video_id = fetch[i].video_id;
+            var topic_id = fetch[i].topic_id;
+            var sub_topic_id = fetch[i].sub_topic_id;
+            var video_title= fetch[i].video_title.toUpperCase();
+            var video_objective = fetch[i].video_objective.substr(0, 130);
+            var video_duration_id  = fetch[i].video_duration_id;
+            var video_passport = fetch[i].video_passport;
+            var video_volume_name = fetch[i].video_volume_name;
+            var subscription_pricing_name  = fetch[i].subscription_pricing_name;
+          
+            text +=
+
+                '<div class="faq-answer-div" id="faq1answer">'+  
+                    '<div class="topics-content-div">'+
+                        '<div class="image-div video-img">'+
+                            '<img src="'+ website_url +'/uploaded_files/sub_topic_video_pix/'+ video_passport +'" alt="'+ video_title +'"/>'+
+                        '</div>'+
+
+                        '<div class="text video-text">'+
+                            '<h4>'+ video_title +'</h4>'+
+                            '<p>'+ video_objective +'</p>'+
+                            '<div class="bottom-div"><button class="btn" title="EDIT SUB-TOPIC VIDEO" onClick="_get_form_with_id(' + "'video_reg'" + "," +"'" + video_id +"'" + "," +"'" + topic_id +"'" + "," +"'" + sub_topic_id +"'" + ');"><i class="bi-pencil-square"></i> EDIT</button>&nbsp;<span class="volume">'+ video_volume_name +'</span> &nbsp;|<span class="volume">'+ subscription_pricing_name +'</span> &nbsp;|<span class="volume">'+ video_duration_id +'</span></div>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>';
+            
+
+            $("#fetch_sub_topic_video").html(text);
+          }
+        } else {
+          text +=
+            '<div class="false-notification-div">' +
+            "<p> " +
+            message +
+            " </p>" +
+            "</div>";
+          $("#fetch_sub_topic_video").html(text);
+        }
+      },
+    });
+  } else {
+    text +=
+      '<div class="false-notification-div">' +
+      "<p> " +
+      message1 +
+      " </p>" +
+      "</div>";
+    $("#fetch_sub_topic_video").html(text);
+  }
+}

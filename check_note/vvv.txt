@@ -1,0 +1,61 @@
+
+							$start_date = "2023-10-16"; // Your actual start_date
+							$due_date = "2023-10-20";   // Your actual due_date
+						// Convert the date strings to DateTime objects
+						$start_date = new DateTime($start_date);
+						$due_date = new DateTime($due_date);
+
+						// Define the number of days to add
+						$days_to_add = 3;
+
+						// Add days to the due_date
+						$due_date->modify("+$days_to_add days");
+
+						// Format the modified due_date as a string
+						$modified_due_date = $due_date->format("Y-m-d");
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Due Date Countdown</title>
+</head>
+<body>
+    <div id="countdown"></div>
+
+    <script>
+        // Function to calculate and update the countdown
+        function updateCountdown(dueDate) {
+            const now = new Date();
+            const dueDateTime = new Date(dueDate);
+            const timeRemaining = dueDateTime - now;
+
+            if (timeRemaining <= 0) {
+                document.getElementById("countdown").innerHTML = "Due date has passed.";
+            } else {
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown").innerHTML = `Due in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        // Replace this with your database query or AJAX call to fetch the due date
+        const dueDateFromDatabase = "2023-10-31T23:59:59"; // Replace with the actual due date
+
+        // Initial call to update the countdown
+        updateCountdown(dueDateFromDatabase);
+
+        // Update the countdown every second
+        setInterval(function () {
+            updateCountdown(dueDateFromDatabase);
+        }, 1000);
+    </script>
+</body>
+</html>
+

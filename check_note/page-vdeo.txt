@@ -1,0 +1,55 @@
+
+<?php if ($page=='page_videos'){?>
+    <div id="get_page_details">
+        <div class="video-container-div">
+
+            <div class="page-form-div page-form-video-div">
+                <div class="page-title">ADD VIDEO</div>
+                    <div class="form-div">
+                         <div class="form-input-div">
+                         <div class="alert" style="margin: 0px auto;">Fill the form below to <span>ADD</span> new video</div>
+                
+                        <div class="title"> VIDEO TITLE: <span>*</span></div>
+                        <input id="video_title" type="text" class="text_field" placeholder="Type Video Title Here..." maxlength="70" title="Type Video Title Here" />
+                       
+                        <div class="title"> VIDEO EMBED URL: <span>*</span></div>
+                        <textarea id="video_url" class="text_field" placeholder="Paste URL here" title="VIDEO EMBED CODE" rows="4"  onkeyup="_fetch_youtube_video()"></textarea>
+                        
+                        <div class="alert alert-success" style="display:none" id="fetch_video"><div class="fetch_video"></div></div>
+
+
+                        <div class="title">STATUS: <span>*</span></div>
+                        <select class="text_field" id="reg_status_id" style="background:#fff; width:100%" >                                                    
+                            <option value="">SELECT STATUS </option>
+                                <script>_get_select_status('reg_status_id','1,2');</script>
+                        </select>
+
+                        <button class="btn" id="update_btn" onclick="_add_and_update_tourism_product_videos('<?php echo $ids?>','');"><i class="bi-save-fill"></i> SAVE</button><br clear="all"><br clear="all">
+
+                        </div>
+
+                    </div>
+            </div>
+
+            <div class="page-form-div page-form-video-div">
+                <div class="page-title">VIDEOS LIST</div>
+                    <div class="form-div">
+                    
+                        <div class="video-back-div">
+
+                            <div id="video-preview-div"></div>
+                            
+                            <!-- <div class="picture-div video-div">
+                            <iframe  width="200" height="150" src="https://youtube.com/embed/gEO3jMbcKJs" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>  -->
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+    <script>_get_fetch_tourism_products_videos('<?php echo $ids?>', '')</script>
+<?php }?>
+

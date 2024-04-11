@@ -1,0 +1,53 @@
+	case 'fetch_sub_topic_api':
+				$topic_id=trim(strtoupper($_POST['topic_id']));
+				
+				$query=mysqli_query($conn,"SELECT
+				a.*, b.due_date,
+				CASE
+				WHEN b.sub_topic_id IS NOT NULL THEN 'yes'
+				ELSE 'no'
+				END AS subscribed,
+				(SELECT COUNT(c.sub_topic_id) FROM sub_topic_video_tab c WHERE c.sub_topic_id=a.sub_topic_id AND a.status_id=1) AS nums_of_videos
+				FROM sub_topic_tab a
+				JOIN user_subscription_tab b ON
+				a.topic_id = b.topic_id AND a.topic_id='$topic_id' AND a.sub_topic_id = b.sub_topic_id AND b.user_id='$login_user_id' AND a.status_id=1")or die (mysqli_error($conn));
+				
+				$query_count=mysqli_num_rows($query);
+				if ($query_count>0){
+				$response['response']=180;
+				$response['result']=true;
+				while($fetch_query=mysqli_fetch_all($query, MYSQLI_ASSOC)){
+					$response['data']=$fetch_query;
+				}
+				}else{
+						$query=mysqli_query($conn,"SELECT a.*, (SELECT COUNT(b.sub_topic_id) FROM sub_topic_video_tab b WHERE a.sub_topic_id=b.sub_topic_id AND b.status_id=1) AS nums_of_videos FROM sub_topic_tab a WHERE  a.topic_id = '$topic_id' AND a.status_id=1 	")or die (mysqli_error($conn));
+						$check_query=mysqli_num_rows($query);
+						if ($check_query>0) { // start if 1
+							$response['response']=180;
+							$response['result']=true;
+							while($fetch_query=mysqli_fetch_all($query, MYSQLI_ASSOC)){
+								$response['data']=$fetch_query;
+							}
+						}else{ // Else 1
+							$response['response']=181;
+							$response['result']=false;
+							$response['message']="NO RECORD FOUND!"; 
+						}// End if 1 	
+				}
+
+				break;
+
+f769485f2b7e303561aa44d1c0867cd7
+
+
+ SELECT
+						a.*, b.due_date,
+						CASE
+						WHEN b.sub_topic_id IS NOT NULL THEN 'yes'
+						ELSE 'no'
+						END AS subscribed,
+						(SELECT COUNT(c.sub_topic_id) FROM sub_topic_video_tab c WHERE c.sub_topic_id=a.sub_topic_id) AS nums_of_videos
+						FROM sub_topic_tab a WHERE a.topic_id='TOPIC00420231023042913'
+						 LEFT JOIN user_subscription_tab b ON
+						a.topic_id=b.topic_id AND a.topic_id='TOPIC00420231023042913'  AND
+						a.sub_topic_id = b.sub_topic_id AND b.user_id='USER00120231024022142' AND b.status_id=1;

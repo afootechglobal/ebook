@@ -1,0 +1,88 @@
+
+<?php if ($page=='tourism_attraction_page_details'){?>
+
+    <div class="page-creation-panel">
+        <div class="title-div">
+            <div class="div-in"><i class="bi-newspaper"></i> TOURISM ATTRACTION DETAILS <button class="close-btn" onclick="_alert_close()"><i class="bi-x-lg"></i></button></div>
+        </div>
+        
+        <div class="grid-div page-side-div">
+            <div class="img-div"><img src="<?php echo $website_url?>/uploaded_files/tourism_attraction_pix/ibudo-asa.webp" alt="Blog Name"></div>
+            <div class="text-div">
+                <h2>Ibudo Asa, Ipara Remo, Ogun State</h2>
+                <div class="text-in">
+                    <div class="text">UPDATED ON: <span>24 Apr 2023</span> </div>
+                    <div class="text"><span>486</span> VIEWS</div>
+                </div>
+                <br>
+            </div>
+        </div>
+
+
+        <div class="page-content-div">
+
+            <div class="menu-div">
+                <li class="active-li" id="page_content" onclick="_check_page_content('page_content','page-content', 'FLEET010')">PAGE CONTENT </li>
+                <li id="page_pictures" onclick="_check_page_content('page_pictures','page-pictures', 'FLEET010')" class="">UPLOAD PICTURES</li>
+                <!-- <li id="page_faq" onclick="_check_page_content('page_faq','page-faq','FLEET010')" class="">FAQs</li> -->
+            </div>
+           
+            <div class="page-form-back-div sb-container" >
+
+                <div class="page-form-div">
+                    <div class="page-title">SEO CONTENT</div>
+                    <div class="form-div">
+                        <div class="form-input-div">
+                            <!-- <div class="title">TOURISM ATTRACTION CATEGORY: <span>*</span></div>
+                            <select id="cat_id" class="text_field select_field" title="SELECT FAQ's CATEGORY">
+                                <option value=""> SELECT BLOG CATEGORY</option>
+                                <script>_get_cat('cat_id');</script>
+                            </select> -->
+                            
+                            <div class="title">TOURISM ATTRACTION TITLE <span><em>(Not more than 60 words)</em></span></div>
+                            <input id="tourism_attraction_title" type="text" maxlength="60" class="text_field" placeholder="TOURISM ATTRACTION TITLE" title="TOURISM ATTRACTION TITLE">
+
+                            <div class="title">TOURISM ATTRACTION SUMMARY <span><em>(Not more than 167 words)</em></span></div>
+                            <textarea id="tourism_attraction_summary" class="text_field" maxlength="167" placeholder="TOURISM ATTRACTION SUMMARY" title="TOURISM ATTRACTION SUMMARY"></textarea>
+
+                            <div class="title">TOURISM ATTRACTION URL <span>*</span></div>
+                            <input id="tourism_attraction_url" type="text" class="text_field" placeholder="e.g tourism-attraction-url" title="TOURISM ATTRACTION URL">
+                           
+                            <div class="title">SEO KEYWORDS <span>*</span></div>
+                            <textarea id="seo_keywords" class="text_field" placeholder="SEO Keywords" title="SEO KEYWORDS"></textarea>
+                           
+                            <div class="title">SELECT STATUS: <span>*</span></div>
+                            <select id="tourism_attraction_status_id" class="text_field select_field" title="SELECT STATUS">
+                                <option value="" selected="selected"> SELECT STATUS</option>
+                                <script>_get_select_status('reg_status_id','1,2');</script>
+                            </select> 
+                       
+                        </div>
+                        <label>
+                            <div class="pix-div" id="view_blog_pix_view"><img id="tourism_attraction_pics" src="<?php echo $website_url?>/uploaded_files/tourism_attraction_pix/ibudo-asa.webp" alt="Exam pix"  /></div>
+                            <input type="file" id="blog_pix" style="display:none" accept=".jpg,.png,.jpeg,.PNG,.JPG,.JPEG,.webp,.WEBP" onchange="blog_pics.UpdatePreview(this);"/>
+                        </label>        
+       			
+                    </div>
+                </div>
+            
+                <div class="page-form-div">
+                    <div class="page-title">FULL PAGE CONTENT</div>
+                    <div class="form-div">
+                        <script src="js/TextEditor.js" referrerpolicy="origin"></script>
+                        <script>tinymce.init({selector:'#tourism_attraction_detail',  // change this value according to your HTML
+                        plugins: "link, image, table"
+                        });</script>
+                    <textarea style="width: 100%;" rows="25" id="tourism_attraction_detail" title="TYPE FULL PAGE CONTENT HERE" placeholder="TYPE FULL PAGE CONTENT HERE"></textarea>
+                    </div>
+                    <button class="btn" id="submit_btn" onclick="_add_and_update_blog('<?php echo $ids?>');"><i class="bi-save-fill"></i> SAVE</button><br clear="all"><br clear="all">
+                </div>
+            </div>
+        
+       
+        </div>
+    </div>
+<?php if($ids!=''){?>
+<script>_get_fetch_each_blog('<?php echo $ids?>');</script>
+<?php }?>
+<?php } ?>

@@ -1,0 +1,134 @@
+import { React, useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import "./Style/MainStyle.css";
+import "./Style/Paramount.css";
+import "./Style/icons-1.10.2/font/bootstrap-icons.css";
+
+import logo from './all-images/images/logo.png';
+
+
+function Login() {
+  // const [action] = useState("login_api");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  const [loginData, setLoginData] = useState({
+    action: 'login_api',
+    email: '',
+    password: '',
+  });
+  const history = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    if (localStorage.getItem('user_id')) {
+      history('/');
+    }
+  }, [history]);
+
+  async function get_login() {
+    try {
+   
+      // const item = {action,email, password};
+      const result_fetch = await fetch("http://localhost/api/user/", {
+        method: "POST",
+        // data: item,
+        // dataType: 'json',
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+      
+     
+      const response = await result_fetch.json();
+     
+
+      if (response.result) {
+        alert(response.message1);
+        // Store token or user information in a secure way (e.g., using sessionStorage or secure cookies)
+        localStorage.getItem("user_id", JSON.stringify(response));
+        history('/');
+      } else {
+        // Handle login failure
+        alert('Login failed: '+ response.email +' ' + response.message1);
+      }
+    } catch (error) {
+      // Handle fetch error
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <>
+      <section className="login-section">
+
+        <div className="login-side-div"></div>
+
+        <div className="div-in">
+          <div className="side-in-div">
+            <div className="side-text">
+              <div className="logo-div" onClick="window.location.reload();"><img src={logo} alt="" /></div>
+              <h1>Welcome To Always Online Classes</h1>
+              <p>Access high-quality education from anywhere, at any time. Explore a wide range of subjects and courses delivered through virtual platforms on SSCE, GCE, NABTEB.</p>
+            </div>
+
+            <div className="social-div">
+              <div className="icon-div"><i className="bi-facebook"></i></div>
+              <div className="icon-div"><i className="bi-instagram"></i></div>
+              <div className="icon-div"><i className="bi-twitter"></i></div>
+              <div className="icon-div"><i className="bi bi-linkedin"></i></div>
+            </div>
+
+            <div className="acute-angle"></div>
+          </div>
+
+          <div className="log-in-div">
+            <div className="form-div">
+              <div className="logo-div" onClick="window.location.reload();"><img src={logo} alt="" /></div>
+              <br clear="all" />
+              <ul className="form-header">
+                <h1 id="page-title">Log-In</h1>
+              </ul>
+
+              <div className="fill-form-div" id="view_login">
+
+                <div className="title-div"> EMAIL ADDRESS: <span>*</span></div>
+                {/* <input type="email" className="text-field" onChange={(e) => setEmail(e.target.value)} placeholder="ENTER YOUR EMAIL ADDRESS" /> */}
+                <input type="email" className="text-field"
+                value={loginData.email}
+                onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                 
+                 placeholder="ENTER YOUR EMAIL ADDRESS" />
+
+                <div className="title-div"> PASSWORD: <span>*</span></div>
+                <div className="password-container">
+                {/* <input type="password" onChange={(e) => setPassword(e.target.value)} className="text-field" placeholder="ENTER YOUR PASSWORD" /><br /> */}
+                  <input type="password" 
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  className="text-field" placeholder="ENTER YOUR PASSWORD" /><br />
+                  <div id="login_pass" onclick="_togglePasswordVisibility('password','login_pass')">
+                    <i className="bi-eye-slash password-toggle"></i>
+                  </div>
+                </div>
+                <span className="title-in"> <input type="checkbox" /> Keep me login</span>
+                <span className="title-in reset-password" id="reset" onclick="_next_page('procced_reset_password_info','reset');">Forgot Password? </span>
+
+                <button className="btn" type="button" id="login_btn" onClick={get_login}><i className="bi-check"></i> Log-In</button>
+
+                <div className="notification-div login-footer-div">
+                  Don't have an account? <span className="footer-in" onclick="_get_page('signup');" >Sign-Up </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </>
+
+  )
+}
+
+export default Login;
