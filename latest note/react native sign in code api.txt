@@ -1,0 +1,314 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { CustomButton, ModalAlert } from "../../components";
+import styles from './auth.style';
+import { COLORS } from "../../constants";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//import CheckBox from "react-native-checkbox";
+
+const SignIn = () => {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    email: '',
+    password: ''
+  });
+
+  const [errors, setErrors] = useState({
+    email: '',
+    password: ''
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const [alertAction, setAlertAction] = useState({
+    status: '',
+    message: '',
+  });
+  const showAlert = (status, message, success) => {
+    setAlertAction({
+      status: status,
+      message: message,
+      success: success,
+    });
+    setAlert(true);
+  };
+  const closeAlert = () => {
+    setAlert(false);
+  };
+
+  const handleSubmit = async () => {
+    let success = true;
+    const { email, password } = form;
+
+    if (!email || !password) {
+      // Show alert for missing fields
+      showAlert('Error', 'All fields are required!', false);
+      return;
+    }
+    setIsLoading(true);
+    // try {
+    //   // const response = await axios.post(`${config.endpoint}/admin/auth/login`, {
+    //   //   email,
+    //   //   password
+    //   // }, {
+    //   //   headers: {
+    //   //     'apiKey': config.apiKey,
+    //   //   }
+    //   // });
+
+    //   // const { success, message1, message2, staffData } = response.data;
+
+    //   // if (success) {
+    //   //   // Store user details in AsyncStorage
+    //   //   // await AsyncStorage.setItem('userLoginDataSession', JSON.stringify(staffData[0])); // Store user data or token
+    //   //   // setUserData(staffData[0]);
+    //   //   // setIsLogged(true);
+    //   //   // Navigate to the home page
+    //   //   router.push('/dashboard');
+    //   // } else {
+    //   //   // showAlert(message1, message2);
+    //   //   showAlert('Error', 'Something went wrong!');
+    //   // }
+    // } catch (error) {
+    //   console.error(error);
+    //   showAlert('Error', 'Something went wrong!');
+    // } finally {
+    //   setIsLoading(false);
+    // }
+  };
+  return (
+    <SafeAreaView style={styles.formContainer}>
+      <View style={styles.innerForm}>
+        <View style={styles.textContainer}>
+          <Text style={styles.topText}>Sign In</Text>
+          <Text style={styles.subTopText}>Hi, Welcome Back</Text>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Email Address <Text style={styles.errorText}>*</Text></Text>
+          <TextInput
+            style={[styles.inputField, errors.email ? styles.errorText : null]} // Apply error style if email has an error
+            placeholder="Email Address"
+            placeholderTextColor={COLORS.textFieldColor}
+            value={form.email}
+            onChangeText={(value) => setForm({ ...form, email: value })}
+          />
+          {/* {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null} */}
+        </View>
+
+
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Password <Text style={styles.errorText}>*</Text></Text>
+          <TouchableOpacity activeOpacity={.8} style={styles.forgetPass}>
+            <Text style={styles.forgetPass} onPress={() => router.push("/(auth)/forget-password")}>Forget Password?</Text>
+          </TouchableOpacity>
+          <TextInput
+           style={[styles.inputField, errors.email ? styles.errorText : null]}   
+            placeholder="Password"
+            placeholderTextColor={COLORS.textFieldColor}
+            secureTextEntry={true}
+            value={form.password}
+            onChangeText={(value) => setForm({ ...form, password: value })}
+          />
+          {/* {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null} */}
+        </View>
+
+        {/* <View style={styles.container}>
+          <CheckBox
+            value={isChecked}
+            onChange={setIsChecked}
+            checkboxStyle={[styles.checkBox, !isChecked ? styles.cbFalse :  styles.cbTrue]}
+          />
+          <Text>Keep me signing in</Text>
+        </View> */}
+        <CustomButton
+          isLoading={isLoading}
+          title={isLoading ? "Signing..." : "Sign In"}
+          handlePress={handleSubmit}
+          containerStyles={styles.button}
+        />
+
+        <View style={styles.footer}>
+          <View style={styles.ftIn}>
+            <Text style={styles.ftLines}></Text>
+            <Text>or sign in with</Text>
+            <Text style={styles.ftLines}></Text>
+          </View>
+          <CustomButton
+          
+            title="Continue With Google"
+            icon={true}
+            textStyles={styles.ftTextBtn}
+            // handlePress={() => router.push("/(auth)/sign-up")}
+            containerStyles={styles.ftBtn}
+          />
+        </View>
+        <TouchableOpacity TouchableOpacity={.8} onPress={() => router.push("/sign-up")}>
+          <Text style={styles.ftText}>Don't have account? <Text style={{ color: COLORS.primaryColor }} >Sign Up</Text></Text>
+        </TouchableOpacity>
+      </View>
+
+        {/* Custom Alert */}
+        {alert && (
+          <ModalAlert
+            title={alertAction.status}
+            message={alertAction.message}
+            onClose={closeAlert} // Close the alert when user clicks "OK" or close button
+            visible={alert}
+          />
+        )}
+    </SafeAreaView>
+  )
+}
+
+export default SignIn
+
+
+
+
+
+export function useGetBookDetails(endPoint, bookId) {
+    const [eachData, setEachData] = useState({ success: null, message: null });
+    const [fetchAllData, setFetchAllData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const fetchBookData = async () => {
+        setIsLoading(true);
+        try {
+            const getResponse = await axios.post(`${config.baseUrl}/${endPoint}`, { book_id: bookId }, {
+                headers: {
+                    'apiKey': config.apiKey,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const { success, message, bookData } = getResponse.data;
+
+            if (success) {
+                setFetchAllData(bookData);  // Set book details
+                setEachData({ success, message });
+            } else {
+                setEachData({ success, message });
+            }
+        } catch (error) {
+            console.error(error);
+            setEachData({ success: false, message: 'An error occurred while fetching data.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (bookId) {  // Ensure bookId is available before fetching
+            fetchBookData();
+        }
+    }, [endPoint, bookId]);
+
+    const refetch = () => {
+        if (bookId) {  // Only refetch if bookId is present
+            fetchBookData();
+        }
+    };
+
+    return { eachData, fetchAllData, isLoading, refetch };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// Home.js
+import { useState, useEffect } from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView, RefreshControl, View, Text, Image, ScrollView } from 'react-native';
+import { images } from '../../constants';
+import { Header, CustomButton, BookState, LoadingState } from "../../components";
+import { useGetBookDetails } from '../../hooks/api/useApi';
+import { capitalizedFirstletter } from '../../hooks/config/useFunction';
+
+const BooksDetails = () => {
+    // Extract the bookId from the route params
+    const { bookId } = useLocalSearchParams();  // Correctly get bookId
+    const router = useRouter();
+
+    const { eachData, fetchAllData, isLoading, modalAlert, alertResponse, alertClose, refetch }
+        = useGetBookDetails("user/dashboard/book-details", { book_id: bookId });  // Pass bookId to the API
+
+    console.log("bookId", bookId);  // Correctly log bookId
+
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = async () => {
+        setRefreshing(true);
+        refetch();
+        setRefreshing(false);
+    };
+
+    return (
+        <SafeAreaView className="bg-black flex-1 h-full mt-[30px]">
+            <Header page="booksdetails" profileImage={images.defaultPix} />
+
+            <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+                {isLoading ? (
+                    <LoadingState />
+                ) : (
+                    <View className="px-[25px] pb-[50px]">
+                        <View className="mt-[10px]">
+                            {fetchAllData ? (
+                                <BookState
+                                    bookTitle={capitalizedFirstletter(fetchAllData.title)}
+                                    bookSubTitle={capitalizedFirstletter(fetchAllData.subtitle)}
+                                    bookPublisher={capitalizedFirstletter(fetchAllData.publisher)}
+                                    bookPrice={fetchAllData.price}  // No need to capitalize price
+                                    bookImage={fetchAllData.image}  // Assuming this is a valid image source
+                                />
+                            ) : (
+                                <Text className="text-[#E6E6E6] text-[18px] font-pmedium">{eachData.message}</Text>
+                            )}
+                        </View>
+
+                        <View className="min-h-full w-full">
+                            <Text className="text-[24px] text-white font-psemibold">Book Overview</Text>
+                            <View className="py-0">
+                                <Text className="text-white text-[16px] leading-7">
+                                    {/* Example Book Overview */}
+                                    The Art of War is a renowned ancient Chinese military treatise written by Sun Tzu, a military strategist and philosopher...
+                                </Text>
+                                <Text className="text-[18px] text-white leading-7">Read Full Overview</Text>
+                                
+                                <View className="pt-3 justify-center space-y-2">
+                                    <Text className="text-white ">Format: Paperback</Text>
+                                    <Text className="text-white ">ISBN: 1599869772</Text>
+                                    <Text className="text-white ">ISBN13: 9781599869773</Text>
+                                    <Text className="text-white ">Release Date: November 2007</Text>
+                                    <Text className="text-white ">Publisher: Filiquarian Publishing, LLC.</Text>
+                                    <Text className="text-white ">Weight: 0.30 lbs.</Text>
+                                    <Text className="text-white ">Dimensions: 0.2" x 6.0" x 9.0"</Text>
+                                </View>
+
+                                <CustomButton
+                                    title="Buy for $20"
+                                    btnSize="large"
+                                    textStyles="text-white font-psemibold text-lg"
+                                    handlePress={() => router.push("/explore")}
+                                    containerStyles="bg-secondary rounded-[15px] justify-center items-center h-[50px] w-full mt-5"
+                                />
+                            </View>
+                        </View>
+                    </View>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+export default BooksDetails;

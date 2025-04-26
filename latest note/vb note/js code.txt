@@ -1,0 +1,88 @@
+  // _disabledInspect();
+        _checkOption();
+
+        $(document).ready(function () {
+    const questions = [
+        {
+            question: "_______ is a name of anything, animal place or thing",
+            options: ["Noun", "Pronoun", "Adjective", "Verb", "Adverb"],
+        },
+        {
+            question: "_______ is a place where people live and work",
+            options: ["City", "Town", "Village", "Country", "Community"],
+        },
+        {
+            question: "_______ is a machine used to compute",
+            options: ["Computer", "Calculator", "Smartphone", "Tablet", "Abacus"],
+        },
+        {
+            question: "_______ is the fastest land animal",
+            options: ["Cheetah", "Lion", "Horse", "Tiger", "Elephant"],
+        },
+    ];
+
+    let currentQuestionIndex = 0;
+    const $questionDiv = $(".question-div");
+    const $questionTextDiv = $(".question");
+    const $optionsContainer = $(".question-div-in");
+
+    // Update question and options
+    function updateQuestion() {
+        const currentQuestion = questions[currentQuestionIndex];
+        $questionDiv.text(`Question ${currentQuestionIndex + 1}`);
+        $questionTextDiv.text(currentQuestion.question);
+
+        // Clear existing options
+        $optionsContainer.find("label").remove();
+
+        // Add new options
+        currentQuestion.options.forEach((option, index) => {
+            const optionHTML = `
+                <label>
+                    <div class="question-option-div">
+                        <div class="option-container-div">
+                            <input type="checkbox" class="checkfield" name="option" />
+                            <div class="option-div">${String.fromCharCode(65 + index)}</div>
+                            ${option}
+                        </div>
+                    </div>
+                </label>
+            `;
+            $optionsContainer.append(optionHTML);
+        });
+
+        // Ensure only one option can be selected
+        $(".checkfield").change(function () {
+            if (this.checked) {
+                $(".checkfield").not(this).prop("checked", false);
+            }
+        });
+    }
+
+    // Handle Previous button
+    $(".prev-btn").click(function () {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            updateQuestion();
+        }
+    });
+
+    // Handle Next button
+    $(".next-btn").click(function () {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            updateQuestion();
+        }
+    });
+
+    // Handle number button click
+    $(".num-btn").each(function (index) {
+        $(this).click(function () {
+            currentQuestionIndex = index;
+            updateQuestion();
+        });
+    });
+
+    // Initialize the first question
+    updateQuestion();
+});

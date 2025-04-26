@@ -1,0 +1,62 @@
+    Public Sub switchModalFormPage11(ByVal newForm As Form)
+        ' Clear any existing controls in the dashboard panel
+        ' overlay.Guna2Panel1.Controls.Clear()
+
+        ' Configure the new form
+        newForm.TopLevel = False
+        'panel.FormBorderStyle = FormBorderStyle.None --- to remove form border
+        newForm.Dock = DockStyle.Fill
+
+        ' Add the new form to the panel
+        ' overlay.Guna2Panel1.Controls.Add(newForm)
+        newForm.Show()
+    End Sub
+
+    Public Sub switchModalFormPage1(ByVal formPage As Form)
+        Dim formModal As New Form
+        Try
+            ' Configure the modal form
+            formModal.FormBorderStyle = FormBorderStyle.None
+            formModal.Opacity = 0.5D
+            formModal.BackColor = Color.Black
+            formModal.StartPosition = FormStartPosition.Manual
+
+            ' Set the size and position to exclude the taskbar
+            Dim screenBounds = Screen.PrimaryScreen.WorkingArea
+            formModal.Bounds = screenBounds
+            formModal.TopMost = True
+            formModal.ShowInTaskbar = False
+            formModal.Show()
+
+            ' Show the form page as a dialog
+            formPage.Owner = formModal
+            formPage.ShowDialog()
+        Catch ex As Exception
+            formModal.Dispose()
+        End Try
+    End Sub
+
+
+    Public Sub switchModalFormPage5(ByVal formPage As Form, ByVal ownerForm As Form)
+        Dim formModal As New Form
+        Try
+            ' Configure the modal form
+            formModal.FormBorderStyle = FormBorderStyle.None
+            formModal.Opacity = 0.5D
+            formModal.BackColor = Color.Black
+            formModal.StartPosition = FormStartPosition.Manual
+
+            ' Set the size and position to match the owner's client area
+            formModal.Bounds = ownerForm.Bounds
+            formModal.Owner = ownerForm
+            formModal.TopMost = False
+            formModal.ShowInTaskbar = False
+            formModal.Show()
+
+            ' Show the form page as a dialog
+            formPage.Owner = formModal
+            formPage.ShowDialog()
+        Catch ex As Exception
+            formModal.Dispose()
+        End Try
+    End Sub

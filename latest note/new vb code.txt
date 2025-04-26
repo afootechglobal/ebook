@@ -1,0 +1,266 @@
+
+   
+    Public Sub ProcessEnroll(ByVal Sample As DPFP.Sample)
+        Try
+            DrawPicture(ConvertSampleToBitmap(Sample))
+            Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+            If Not FeaturesEnroll Is Nothing Then
+                Try
+                    ' MsgBox("The fingerprint feature set was created")
+                    enroller.AddFeatures(FeaturesEnroll)
+                Finally
+                    SetStatus("Capture finger: " & enroller.FeaturesNeeded.ToString)
+                    Select Case enroller.TemplateStatus
+                        Case DPFP.Processing.Enrollment.Status.Ready
+                            RaiseEvent ontemplate(enroller.Template)
+                            StopCapture()
+                            SetStatus("Fingerprint Templates Completed Now...")
+
+                        Case DPFP.Processing.Enrollment.Status.Failed
+                            enroller.Clear()
+                            StopCapture()
+                            RaiseEvent ontemplate(Nothing)
+                            StartCapture()
+                    End Select
+                End Try
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        End Try
+    End Sub 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Public Sub ProcessEnroll(ByVal Sample As DPFP.Sample)
+        Try
+            DrawPicture(ConvertSampleToBitmap(Sample))
+            Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+
+            If Not FeaturesEnroll Is Nothing Then
+                Try
+                    enroller.AddFeatures(FeaturesEnroll)
+                    FingerCaptureCounts(CurrentFinger) += 1 ' Increment capture count for the current finger
+
+                    ' Display progress for the current finger
+                    SetStatus("Capturing Finger : " & CurrentFinger + 1 & ":" & FingerCaptureCounts(CurrentFinger) & "/" & RequiredCapturesPerFinger)
+
+                    ' Check if the current finger is fully captured
+                    If FingerCaptureCounts(CurrentFinger) >= RequiredCapturesPerFinger Then
+                        If CurrentFinger < TotalFingers - 1 Then
+                            ' Move to the next finger
+                            CurrentFinger += 1
+                            SetStatus("Switch to Finger " & CurrentFinger + 1)
+                        Else
+                            ' All fingers are captured
+                            Select Case enroller.TemplateStatus
+                                Case DPFP.Processing.Enrollment.Status.Ready
+                                    RaiseEvent ontemplate(enroller.Template)
+                                    StopCapture()
+                                    SetStatus("Enrollment Completed for All Fingers!")
+
+                                Case DPFP.Processing.Enrollment.Status.Failed
+                                    enroller.Clear()
+                                    StopCapture()
+                                    RaiseEvent ontemplate(Nothing)
+                                    StartCapture()
+                            End Select
+                        End If
+                    End If
+                Finally
+                    ' Cleanup logic if needed
+                End Try
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+
+
+
+
+
+
+
+Public Sub enrollRegistration()
+        Dim connection = MyFunction.connection
+
+        Try
+
+            connection.Open()
+            command = New MySqlCommand("SELECT * FROM student_tab WHERE matric_no=@matric_no OR form_number=@form_number", connection)
+            command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+            command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+            reader = command.ExecuteReader
+            reader.Read()
+
+            If reader.HasRows Then
+                If (reader("status_id") = 1) Then
+                    Dim matric_no As String = reader("matric_no")
+                    Dim form_number As String = reader("form_number")
+                    Dim department_id As String = reader("department_id")
+                    Dim level_id As String = reader("level_id")
+                    'Dim enroll_id = "ENRL" & MyFunction.getSequeceCount("ENRL") & Now.ToString("yyyyMMddss")
+                    Dim enroll_id = "ENRL" & Now.ToString("yyyyMMddss")
+                    connection.Close()
+
+                    Dim fs As MemoryStream = New MemoryStream
+                    enroller.Template.Serialize(fs)
+                    fs.Position = 0
+                    Dim br As BinaryReader = New BinaryReader(fs)
+                    Dim fs_bytes() As Byte = br.ReadBytes(CType(fs.Length, Int32))
+
+                    connection.Open()
+                    query = "Insert into enrollment_tab(matric_no,form_number,department_id,level_id,fingerprint_template,created_at)VALUES(@matric_no,@form_number,@department_id,@level_id,@fingerprint_template,NOW())"
+                    command = New MySqlCommand(query, connection)
+
+                    command.Parameters.AddWithValue("@enroll_id", enroll_id)
+                    If (matric_no = enrollSearchTxt.Text) Then
+                        command.Parameters.AddWithValue("@matric_no", matricNoFormNoTxt.Text.ToString)
+                    ElseIf (form_number = enrollSearchTxt.Text) Then
+                        command.Parameters.AddWithValue("@form_number", matricNoFormNoTxt.Text.ToString)
+                   
+                    End If
+                    command.Parameters.AddWithValue("@department_id", department_id)
+                    command.Parameters.AddWithValue("@level_id", level_id)
+                    command.Parameters.AddWithValue("@fingerprint_template", fs_bytes)
+                    reader = command.ExecuteReader
+                    connection.Close()
+
+                    MessageBox.Show("SUCESS! Student Enrollment Successfull", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Else
+                    'enrollSearchBtn.Enabled = True
+                    MessageBox.Show("STUDENT SUSPENDED! Student not eligible for enrollment. Contact admin for assistance", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End If
+
+            Elsea
+                'enrollSearchBtn.Enabled = True
+                MessageBox.Show("RECORD NOT FOUND! Student not exist", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+            End If
+
+
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
+    End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Public Sub ProcessVerify(ByVal sample As DPFP.Sample)
+
+        connection = MyFunction.connection
+        DrawPicture(ConvertSampleToBitmap(sample))
+        Dim FeaturesVerify As DPFP.FeatureSet = ExtractFeatures(sample, DPFP.Processing.DataPurpose.Verification)
+
+        If FeaturesVerify IsNot Nothing Then
+            Dim verificator As New DPFP.Verification.Verification
+            Dim result As New DPFP.Verification.Verification.Result()
+
+            Dim query As String = "SELECT fingerprint_template FROM enrollment_tab"
+            Dim sda As New MySqlDataAdapter(query, connection)
+            Dim dt As New DataTable
+            sda.Fill(dt)
+
+            For Each dr As DataRow In dt.Rows
+                Dim bytes As Byte() = TryCast(dr("fingerprint_template"), Byte())
+                If bytes IsNot Nothing Then
+                    Dim SavedTemp As New DPFP.Template
+                    SavedTemp.DeSerialize(bytes)
+                    verificator.Verify(FeaturesVerify, SavedTemp, result)
+
+                    If result.Verified Then
+                        SetStatus("Fingerprint is Verified")
+
+                        connection = MyFunction.connection
+                        command = New MySqlCommand("SELECT a.*, b.department_name, c.level_name FROM student_tab a, department_tab b, setup_level_tab c, enrollment_tab d WHERE a.department_id=b.department_id AND a.level_id=c.level_id AND (a.matric_no=d.matric_no OR a.form_number=d.form_number) AND (d.matric_no=@matric_no OR d.form_number=@form_number)", connection)
+                        command.Parameters.AddWithValue("@fingerprint_template", bytes)
+                        reader = command.ExecuteReader
+                        reader.Read()
+                        Me.Invoke(Sub()
+                                      Try
+
+
+                                          If reader.HasRows Then
+                                              If (reader("status_id") = 1) Then
+                                                  Dim matric_no As String = reader("matric_no").ToString()
+                                                  Dim form_number As String = reader("form_number").ToString()
+                                                  matricNoFormNoTxt.Text = form_number
+                                                  Dim std_surname As String = reader("surname").ToString()
+                                                  Dim std_lastname As String = reader("firstname").ToString()
+                                                  fullnameTxt.Text = std_surname & " " & std_lastname ' Concatenate with a space
+                                                  departmentTxt.Text = reader("department_name").ToString()
+                                                  levelTxt.Text = reader("level_name").ToString()
+                                                  Dim passport_url As String = reader("passport_url").ToString()
+                                                  Dim std_passport_pix As String = reader("passport_pix").ToString()
+                                                  Dim imagePath As String = passport_url & "/" & std_passport_pix
+
+                                                  MyFunction.getPassportPix(imagePath, passportBox)
+                                              Else
+                                                  MessageBox.Show("STUDENT SUSPENDED! Student not eligible for enrollment. Contact admin for assistance", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                              End If
+                                          Else
+                                              MessageBox.Show("RECORD NOT FOUND! Student not exist", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                          End If
+                                      Catch ex As Exception
+                                          MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                      Finally
+                                          ' Ensure connection is closed
+                                          If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                                              connection.Close()
+                                          End If
+                                      End Try
+                                  End Sub)
+                        Exit For
+                    End If
+                End If
+            Next
+
+            If Not result.Verified Then
+                SetStatus("No Record Found with the Specified Fingerprint")
+                Me.Invoke(Sub()
+                              cancelField()
+                          End Sub)
+            End If
+        Else
+            SetStatus("Unable to extract features from the fingerprint")
+        End If
+
+    End Sub
+
+
+
+
+
+
+
+

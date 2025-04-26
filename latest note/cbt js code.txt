@@ -1,0 +1,532 @@
+
+function _getTimeCountDown111() {
+	$(document).ready(function () {
+		//let remainingTime = 1 * 60 * 60; //  hours in seconds
+		let remainingTime = 5 * 60; //  minutes in seconds
+		const $timeDisplay = $("#detailTime");
+
+		function formatTime(seconds) {
+			const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+			const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+			const secs = String(seconds % 60).padStart(2, "0");
+			return `${hours}:${minutes}:${secs}`;
+		}
+
+		function updateTimer() {
+			if (remainingTime > 0) {
+				remainingTime--;
+				$timeDisplay.text(formatTime(remainingTime));
+				var currentTime = formatTime(remainingTime)
+			} else {
+				clearInterval(timerInterval);
+				$timeDisplay.text("00:00:00");
+				_getPageCbt('cbt_statistics', '');
+			}
+			alert(currentTime);
+		}
+
+		$timeDisplay.text(formatTime(remainingTime));
+		const timerInterval = setInterval(updateTimer, 1000);
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function _cbtQuestion11() {
+
+	$(document).ready(function () {
+		const questions = [{
+			question: "_______ is a name of anything, animal place or thing",
+			options: ["Noun", "Pronoun", "Adjective", "Verb", "Adverb"],
+			selectedOption: null, // Track selected option
+		},
+		{
+			question: "Which of the following pictures is a cat?",
+			options: ["http://localhost/projects/leaderstutors.com/account/all-images/images/dog.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/lion.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/cat.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/pig.jpg", "None of the above"],
+			selectedOption: null,
+			//image: "http://localhost/projects/leaderstutors.com/account/all-images/images/laptop.jpg",
+		},
+
+		{
+			question: "_______ is a place where people live and work",
+			options: ["City", "Town", "Village", "Country", "Community"],
+			selectedOption: null,
+			image: "http://localhost/projects/leaderstutors.com/account/all-images/images/village.jpg" // Example image
+		},
+		{
+			question: "_______ is a machine used to compute",
+			options: ["Computer", "Calculator", "Smartphone", "Tablet", "Abacus"],
+			selectedOption: null,
+			image: "http://localhost/projects/leaderstutors.com/account/all-images/images/laptop.jpg", // Example image
+		},
+		{
+			question: "_______ is the fastest land animal",
+			options: ["Cheetah", "Lion", "Horse", "Tiger", "Elephant"],
+			selectedOption: null,
+		},
+
+		];
+
+		let currentQuestionIndex = 0;
+		const $questionDiv = $("#questionID");
+		const $questionTextId = $("#questionTextId");
+		const $optionsContainerId = $("#optionsContainerId");
+		const $numButtonContainerId = $("#numButtonContainerId");
+		const $imageContainerId = $("#imageContainerId"); // Container for the image
+		const $nextButton = $("#next"); // Cache the Next button
+		const $prevButton = $("#previous"); // Cache the Previous button
+
+		// Generate number buttons dynamically
+		function generateNumButtons() {
+			$numButtonContainerId.empty(); // Clear existing buttons
+			questions.forEach((_, index) => {
+				const numButtonHTML = `
+					<button class="num-btn" id="numBtnId" data-index="${index}">${index + 1}</button>
+					`;
+				$numButtonContainerId.append(numButtonHTML);
+			});
+
+			// Add click event listeners to number buttons
+			$(".num-btn").click(function () {
+				currentQuestionIndex = $(this).data("index");
+				updateQuestion();
+			});
+		}
+
+		// Update question and options
+		function updateQuestion() {
+			const currentQuestion = questions[currentQuestionIndex];
+			$questionDiv.text(`Question ${currentQuestionIndex + 1}`);
+			$questionTextId.text(currentQuestion.question);
+
+			// Handle image
+			if (currentQuestion.image) {
+				$imageContainerId.html(`<img src="${currentQuestion.image}" alt="Question Image" />`);
+				$imageContainerId.show();
+				$(".question").css("display", "flex");
+				$(".text-with-img").css("width", "100%");
+			} else {
+				$imageContainerId.hide(); // Hide the image container
+				$(".question").css("display", "block");
+			}
+			// Clear existing options
+			$optionsContainerId.find("label").remove();
+
+			// Add new options
+			currentQuestion.options.forEach((option, index) => {
+				const isChecked = currentQuestion.selectedOption === index ? "checked" : "";
+				const optionHTML = `
+			<label>
+                    <div class="question-option-div">
+                        <div class="option-container-div">
+                            <input type="radio" class="checkfield" name="option" value="${index}" ${isChecked} />
+                            <div class="option-div">${String.fromCharCode(65 + index)}</div>
+                            ${option.startsWith("http")
+						? `<div class="option-image-div">
+									<img src="${option}" alt="Option Image" class="option-image" />
+									</div>`
+						: option
+					}
+                        </div>
+                    </div>
+                </label>`;
+				$optionsContainerId.append(optionHTML);
+			});
+
+			$(".checkfield").change(function () {
+				const selectedValue = parseInt($(this).val());
+				questions[currentQuestionIndex].selectedOption = selectedValue;
+				// Highlight the corresponding number button as answered
+				$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("answered");
+			});
+
+			// Highlight the active number button
+			$(".num-btn").removeClass("active");
+			$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("active");
+
+			// Update Next button text
+			if (currentQuestionIndex === questions.length - 1) {
+				$nextButton.text("Finish").off("click").click(finishQuiz);
+			} else {
+				$nextButton.text("Next").off("click").click(nextQuestion);
+			}
+		}
+
+		// Handle Previous button
+		$prevButton.click(function () {
+			if (currentQuestionIndex > 0) {
+				currentQuestionIndex--;
+				updateQuestion();
+			}
+		});
+
+		// Handle Next button
+		function nextQuestion() {
+			if (currentQuestionIndex < questions.length - 1) {
+				currentQuestionIndex++;
+				updateQuestion();
+			}
+		}
+
+		// Handle Finish button
+		function finishQuiz() {
+			_getPageCbt('cbt_statistics', '');
+		}
+
+		// Initialize the quiz
+		generateNumButtons();
+		updateQuestion();
+	});
+}
+
+
+
+function _cbtQuestion111() {
+	$(document).ready(function () {
+		const questions = [{
+			question: "_______ is a name of anything, animal place or thing",
+			options: ["Noun", "Pronoun", "Adjective", "Verb", "Adverb"],
+			selectedOption: null, // Track selected option
+		},
+		{
+			question: "Which of the following pictures is a cat?",
+			options: ["http://localhost/projects/leaderstutors.com/account/all-images/images/dog.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/lion.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/cat.jpg", "http://localhost/projects/leaderstutors.com/account/all-images/images/pig.jpg", "None of the above"],
+			selectedOption: null,
+			//image: "http://localhost/projects/leaderstutors.com/account/all-images/images/laptop.jpg",
+		},
+
+		{
+			question: "_______ is a place where people live and work",
+			options: ["City", "Town", "Village", "Country", "Community"],
+			selectedOption: null,
+			image: "http://localhost/projects/leaderstutors.com/account/all-images/images/village.jpg" // Example image
+		},
+		{
+			question: "_______ is a machine used to compute",
+			options: ["Computer", "Calculator", "Smartphone", "Tablet", "Abacus"],
+			selectedOption: null,
+			image: "http://localhost/projects/leaderstutors.com/account/all-images/images/laptop.jpg", // Example image
+		},
+		{
+			question: "_______ is the fastest land animal",
+			options: ["Cheetah", "Lion", "Horse", "Tiger", "Elephant"],
+			selectedOption: null,
+		},
+
+		];
+
+		let currentQuestionIndex = 0;
+		const $questionDiv = $("#questionID");
+		const $questionTextId = $("#questionTextId");
+		const $optionsContainerId = $("#optionsContainerId");
+		const $numButtonContainerId = $("#numButtonContainerId");
+		const $imageContainerId = $("#imageContainerId"); // Container for the image
+		const $nextButton = $("#next"); // Cache the Next button
+		const $prevButton = $("#previous"); // Cache the Previous button
+
+		// Generate number buttons dynamically
+		function generateNumButtons() {
+			$numButtonContainerId.empty(); // Clear existing buttons
+			questions.forEach((_, index) => {
+				const numButtonHTML = `
+					<button class="num-btn" id="numBtnId" data-index="${index}">${index + 1}</button>
+					`;
+				$numButtonContainerId.append(numButtonHTML);
+			});
+
+			// Add click event listeners to number buttons
+			$(".num-btn").click(function () {
+				currentQuestionIndex = $(this).data("index");
+				updateQuestion();
+			});
+		}
+
+		// Update question and options
+		function updateQuestion() {
+			const currentQuestion = questions[currentQuestionIndex];
+			$questionDiv.text(`Question ${currentQuestionIndex + 1}`);
+			$questionTextId.text(currentQuestion.question);
+
+			// Handle image
+			if (currentQuestion.image) {
+				$imageContainerId.html(`<img src="${currentQuestion.image}" alt="Question Image" />`);
+				$imageContainerId.show();
+				$(".question").css("display", "flex");
+				$(".text-with-img").css("width", "100%");
+			} else {
+				$imageContainerId.hide(); // Hide the image container
+				$(".question").css("display", "block");
+			}
+			// Clear existing options
+			$optionsContainerId.find("label").remove();
+
+			// Add new options
+			currentQuestion.options.forEach((option, index) => {
+				const isChecked = currentQuestion.selectedOption === index ? "checked" : "";
+				const optionHTML = `
+			<label>
+                    <div class="question-option-div">
+                        <div class="option-container-div">
+                            <input type="radio" class="checkfield" name="option" value="${index}" ${isChecked} />
+                            <div class="option-div">${String.fromCharCode(65 + index)}</div>
+                            ${option.startsWith("http")
+						? `<div class="option-image-div">
+									<img src="${option}" alt="Option Image" class="option-image" />
+									</div>`
+						: option
+					}
+                        </div>
+                    </div>
+                </label>`;
+				$optionsContainerId.append(optionHTML);
+			});
+
+			$(".checkfield").change(function () {
+				const selectedValue = parseInt($(this).val());
+				questions[currentQuestionIndex].selectedOption = selectedValue;
+				// Highlight the corresponding number button as answered
+				$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("answered");
+			});
+
+			// Highlight the active number button
+			$(".num-btn").removeClass("active");
+			$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("active");
+
+			// Update Next button text
+			if (currentQuestionIndex === questions.length - 1) {
+				$nextButton.text("Finish").off("click").click(finishQuiz);
+			} else {
+				$nextButton.text("Next").off("click").click(nextQuestion);
+			}
+		}
+
+		// Handle Previous button
+		$prevButton.click(function () {
+			if (currentQuestionIndex > 0) {
+				currentQuestionIndex--;
+				updateQuestion();
+			}
+		});
+
+		// Handle Next button
+		function nextQuestion() {
+			if (currentQuestionIndex < questions.length - 1) {
+				currentQuestionIndex++;
+				updateQuestion();
+			}
+		}
+
+		// Handle Finish button
+		function finishQuiz() {
+			_getPageCbt('cbt_statistics', '');
+			//  alert("Quiz finished!"); // Replace with desired finish behavior
+			// Example: Redirect to results page or submit answers
+			// window.location.href = "results.html";
+		}
+
+		// Initialize the quiz
+		generateNumButtons();
+		updateQuestion();
+	});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php if ($page == 'cbt_statistics') { ?>
+    <div class="content-side-div cbt-quiz-content-div animated fadeIn">
+        <div class="div-in ">
+
+            <div class="cbt-alert-container statistics-container-div" >
+                <div class="div-in">
+                    <div class="top-text-div">Classwork Statistics
+                        <button class="correction-btn"><i class="bi-eye"></i> View Correction</button>
+                    </div>
+
+                    <div class="quest-faq-div cbt-statistic-container" id="cbt-statistic-container-faq1">
+                        <div class="faq-title-text">
+                            <div class="cbt-statistic-title-div">
+                                Subject: <div class="detail-div" id="cbt-subject-name">BASIC SCIENCE</div>
+                                Topic: <div class="detail-div" id="cbt-topic-name">INTRODUCTION TO COMPUTING</div>
+                            </div>
+                            <div class="expand-div" id="faq1num" onclick="_collapseCbt('faq1')" title="Click to View Terms">&nbsp;<i class="bi-plus"></i>&nbsp;</div>
+                        </div>
+
+                        <div class="faq-answer-div cbt-statistic-div-in" id="faq1answer" style="display: none;">
+                            <div class="statistics-count-div">
+                                <div class="text-div">Total Number of Questions</div>
+                                <div class="count-div" id="total_number_of_question">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Questions Attempted</div>
+                                <div class="count-div" id="questions_attempted">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Questions Not Attempted</div>
+                                <div class="count-div" id="questions_not_attempted">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Question Passed</div>
+                                <div class="count-div" id="questions_passed">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Question Failed</div>
+                                <div class="count-div" id="questions_failed">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Time Allowed</div>
+                                <div class="count-div" id="time_allowed">00:00:00</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Time Taken</div>
+                                <div class="count-div" id="time_taken">00:00:00</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Percentage</div>
+                                <div class="count-div"><span id="percentage">0</span>%</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- <div class="quest-faq-div cbt-statistic-container" id="cbt-statistic-container-faq2">
+                        <div class="faq-title-text">
+                            <div class="cbt-statistic-title-div">
+                                Subject: <div class="detail-div">BASIC SCIENCE</div>
+                                Topic: <div class="detail-div">INTRODUCTION TO COMPUTING</div>
+                            </div>
+                            <div class="expand-div" id="faq2num" onclick="_collapseCbt('faq2')" title="Click to View Terms">&nbsp;<i class="bi-plus"></i>&nbsp;</div>
+                        </div>
+
+                        <div class="faq-answer-div cbt-statistic-div-in" id="faq2answer" style="display: none;">
+                            <div class="statistics-count-div">
+                                <div class="text-div">Total Number of Questions</div>
+                                <div class="count-div">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Total Number Attempted</div>
+                                <div class="count-div">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Total Number Passed</div>
+                                <div class="count-div">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Total Number Failed</div>
+                                <div class="count-div">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Questions Not Attempted</div>
+                                <div class="count-div">0</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Time Taken</div>
+                                <div class="count-div">00:05:00</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Time Allow</div>
+                                <div class="count-div">00:05:00</div>
+                            </div>
+                            <div class="statistics-count-div">
+                                <div class="text-div">Percentage</div>
+                                <div class="count-div"><span>0</span>%</div>
+                            </div>
+                        </div>
+                    </div> -->
+
+
+
+
+
+
+
+
+
+                    <!-- <div class="chart-div">
+                        <div id="chartContainer1" style="width:100%; height:300px; margin:20px auto 0px auto;"></div>
+
+                        <script type="text/javascript">
+                            var options = {
+                                title: {
+                                    text: "" /*My Performance*/
+                                },
+                                data: [{
+                                    type: "pie",
+                                    startAngle: 45,
+                                    showInLegend: "False",
+                                    legendText: "{label}",
+                                    indexLabel: "{label} ({y})",
+                                    yValueFormatString: "#,##0.#" % "",
+                                    dataPoints: [{
+                                            label: "Outstanding",
+                                            y: 300
+                                        },
+                                        {
+                                            label: "Pending",
+                                            y: 200
+                                        },
+                                        {
+                                            label: "Processing",
+                                            y: 100
+                                        },
+                                        {
+                                            label: "Ready",
+                                            y: 300
+                                        },
+                                        {
+                                            label: "Delivered",
+                                            y: 200
+                                        },
+                                    ]
+                                }]
+                            };
+                            $("#chartContainer1").CanvasJSChart(options);
+                        </script>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<?php } ?>

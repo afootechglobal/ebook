@@ -1,0 +1,30 @@
+#ACADF1FC
+
+
+#08457E - primary color
+
+#A3A4F9FC - secondary color
+
+
+
+163, 164, 249
+
+56, 86, 245
+
+#3856F5
+
+
+
+30, 132, 73
+
+#B2BABB
+
+#636367s
+
+
+    Public Sub switchFormPage(ByRef panel As Form)
+        enrollDashboard.dashboardPanel.Controls.Clear()
+        panel.TopLevel = False
+        enrollDashboard.dashboardPanel.Controls.Add(panel)
+        panel.Show()
+    End Sub

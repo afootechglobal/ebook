@@ -1,0 +1,20 @@
+https://chatgpt.com/c/671d1afe-3220-800a-91ac-6d88a45447cd
+https://chatgpt.com/c/66f2bb85-93a8-800a-addf-417379f96b6e
+https://chatgpt.com/c/66f43fa1-1e68-800a-a227-97f4ea093712
+https://chatgpt.com/c/671cb6d2-d090-800a-bf97-4a0f566c4689
+
+
+
+https://chatgpt.com/c/670e855c-30a8-8005-9574-ec140219d840
+https://chatgpt.com/c/672f2860-752c-8005-a4ee-769344d14e97
+https://chatgpt.com/c/6710a130-260c-8005-9fe9-97ab9044f833
+https://chatgpt.com/c/670e8562-167c-8005-97c0-05df4f2fac4d
+
+
+
+const attendance_staff_course_id = JSON.parse(sessionStorage.getItem("attendance_staff_course_id"));
+const parts = attendance_staff_course_id.split(',');
+var staff_id = parts[0];
+var course_id = parts[1];
+
+

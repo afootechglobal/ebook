@@ -1,0 +1,632 @@
+    <script>
+        $(document).ready(function() {
+            const questions = [{
+                    question: "_______ is a name of anything, animal place or thing",
+                    options: ["Noun", "Pronoun", "Adjective", "Verb", "Adverb"],
+                    selectedOption: null, // Track selected option
+                },
+                {
+                    question: "_______ is a place where people live and work",
+                    options: ["City", "Town", "Village", "Country", "Community"],
+                    selectedOption: null,
+                    image: "<?php echo $website_url ?>/account/all-images/images/village.jpg" // Example image
+                },
+                {
+                    question: "_______ is a machine used to compute",
+                    options: ["Computer", "Calculator", "Smartphone", "Tablet", "Abacus"],
+                    selectedOption: null,
+                    image: "<?php echo $website_url ?>/account/all-images/images/laptop.jpg", // Example image
+                },
+                {
+                    question: "_______ is the fastest land animal",
+                    options: ["Cheetah", "Lion", "Horse", "Tiger", "Elephant"],
+                    selectedOption: null,
+                },
+
+            ];
+
+            let currentQuestionIndex = 0;
+            const $questionDiv = $("#questionID");
+            const $questionTextId = $("#questionTextId");
+            const $optionsContainerId = $("#optionsContainerId");
+            const $numButtonContainerId = $("#numButtonContainerId");
+            const $imageContainerId = $("#imageContainerId"); // Container for the image
+            const $nextButton = $("#next"); // Cache the Next button
+            const $prevButton = $("#previous"); // Cache the Previous button
+
+            // Generate number buttons dynamically
+            function generateNumButtons() {
+                $numButtonContainerId.empty(); // Clear existing buttons
+                questions.forEach((_, index) => {
+                    const numButtonHTML = `
+                        <button class="num-btn" id="numBtnId" data-index="${index}">${index + 1}</button>
+                        `;
+                    $numButtonContainerId.append(numButtonHTML);
+                });
+
+                // Add click event listeners to number buttons
+                $(".num-btn").click(function() {
+                    currentQuestionIndex = $(this).data("index");
+                    updateQuestion();
+                });
+            }
+
+            // Update question and options
+            function updateQuestion() {
+                const currentQuestion = questions[currentQuestionIndex];
+                $questionDiv.text(`Question ${currentQuestionIndex + 1}`);
+                $questionTextId.text(currentQuestion.question);
+
+                // Handle image
+                if (currentQuestion.image) {
+                    $imageContainerId.html(`<img src="${currentQuestion.image}" alt="Question Image" />`);
+                    $imageContainerId.show();
+                    $(".question").css("display", "flex");
+                    $(".text-with-img").css("width", "100%");
+                } else {
+                    $imageContainerId.hide(); // Hide the image container
+                    $(".question").css("display", "block");
+                }
+                // Clear existing options
+                $optionsContainerId.find("label").remove();
+
+                // Add new options
+                currentQuestion.options.forEach((option, index) => {
+                    const isChecked = currentQuestion.selectedOption === index ? "checked" : "";
+                    const optionHTML = `
+                <label>
+                    <div class="question-option-div">
+                        <div class="option-container-div">
+                            <input type="radio" class="checkfield" name="option" value="${index}" ${isChecked} />
+                            <div class="option-div">${String.fromCharCode(65 + index)}</div>
+                            ${option}
+                        </div>
+                    </div>
+                </label>`;
+                    $optionsContainerId.append(optionHTML);
+                });
+
+                $(".checkfield").change(function() {
+                    const selectedValue = parseInt($(this).val());
+                    questions[currentQuestionIndex].selectedOption = selectedValue;
+                    // Highlight the corresponding number button as answered
+                    $(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("answered");
+                });
+
+                // Highlight the active number button
+                $(".num-btn").removeClass("active");
+                $(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("active");
+
+                // Update Next button text
+                if (currentQuestionIndex === questions.length - 1) {
+                    $nextButton.text("Finish").off("click").click(finishQuiz);
+                } else {
+                    $nextButton.text("Next").off("click").click(nextQuestion);
+                }
+            }
+
+            // Handle Previous button
+            $prevButton.click(function() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    updateQuestion();
+                }
+            });
+
+            // Handle Next button
+            function nextQuestion() {
+                if (currentQuestionIndex < questions.length - 1) {
+                    currentQuestionIndex++;
+                    updateQuestion();
+                }
+            }
+
+            // Handle Finish button
+            function finishQuiz() {
+                _getPageCbt('cbt_statistics', '');
+                //  alert("Quiz finished!"); // Replace with desired finish behavior
+                // Example: Redirect to results page or submit answers
+                // window.location.href = "results.html";
+            }
+
+            // Initialize the quiz
+            generateNumButtons();
+            updateQuestion();
+        });
+
+
+
+
+        $(document).ready(function() {
+            //let remainingTime = 1 * 60 * 60; //  hours in seconds
+            let remainingTime = 5 * 60; //  minutes in seconds
+            const $timeDisplay = $("#detailTime");
+
+            function formatTime(seconds) {
+                const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+                const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+                const secs = String(seconds % 60).padStart(2, "0");
+                return `${hours}:${minutes}:${secs}`;
+            }
+
+            function updateTimer() {
+                if (remainingTime > 0) {
+                    remainingTime--;
+                    $timeDisplay.text(formatTime(remainingTime));
+                } else {
+                    clearInterval(timerInterval);
+                    $timeDisplay.text("00:00:00");
+                    _getPageCbt('cbt_statistics', '');
+                }
+            }
+
+            $timeDisplay.text(formatTime(remainingTime));
+            const timerInterval = setInterval(updateTimer, 1000);
+        });
+        
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Imports DPFP
+Imports DPFP.Capture
+Imports DPFP.Verification
+Imports MySql.Data.MySqlClient
+Imports System.IO
+Imports System.Data
+Imports System.Drawing
+Imports System.Text.RegularExpressions
+
+Public Class enrollmentFormPage
+    Implements DPFP.Capture.EventHandler
+
+
+    Private capturer As DPFP.Capture.Capture
+    Delegate Sub functioncall(ByVal param)
+    Private Event ontemplate(ByVal template)
+    Private enroller As DPFP.Processing.Enrollment
+    Dim connection As MySqlConnection
+    Dim connstring As String
+    Dim reader As MySqlDataReader
+    Dim command As New MySqlCommand
+    Dim query As String
+    Dim mstream As New MemoryStream
+    Dim arrimage() As Byte
+    Dim DT As New DataTable
+    Public login_staff_id As String
+
+
+    Private FingerCaptureCounts As Integer() = New Integer(3) {} ' Array to track capture counts for 10 fingers
+    Private CurrentFinger As Integer = 0 ' Start with the first finger (index 0)
+    Private Const RequiredCapturesPerFinger As Integer = 4 ' Number of captures required per finger
+    Private Const TotalFingers As Integer = 4 ' Total number of fingers
+
+    Private Sub enrollmentFormPage_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+        MyFunction.styleDynamicBorderRadius(enrollSearchBtn, 1, 23) ' Apply 20px radius to the left side
+
+        CenterToParent()
+        InitializeCapture()
+        StartCapture()
+        cancelField()
+        MessageBox.Show("YES its ENROLLMENT PAGE")
+    End Sub
+
+    Private Sub cancelField()
+        enrollSearchTxt.Text = ""
+        matricNoFormNoTxt.Text = ""
+        fullnameTxt.Text = ""
+        departmentTxt.Text = ""
+        levelTxt.Text = ""
+        enrollPassportBox = MyFunction.getPassportPix(MyFunction.defaultPixUrl(), enrollPassportBox)
+        FptPictureBox.Image = Nothing
+    End Sub
+
+    Protected Sub SetStatus(ByVal status)
+        Try
+            Invoke(New functioncall(AddressOf _SetStatus), status)
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub _SetStatus(ByVal status)
+        Try
+            Me.LabelCount.Text = status
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' initialize biometric capture
+    Public Overridable Sub InitializeCapture()
+        Try
+            capturer = New DPFP.Capture.Capture
+            enroller = New DPFP.Processing.Enrollment
+            Me.LabelCount.Text = ("Enrollment Capture Count: " & enroller.FeaturesNeeded.ToString)
+            If (Not capturer Is Nothing) Then
+                capturer.EventHandler = Me
+            Else
+                MessageBox.Show("Can't Initialize Capture Operation", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
+    End Sub
+
+    Public Sub StartCapture()
+        Try
+            If (Not capturer Is Nothing) Then
+                capturer.StartCapture()
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Public Sub StopCapture()
+        Try
+            If (Not capturer Is Nothing) Then
+                capturer.StopCapture()
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+
+    Protected Sub DrawPicture(ByVal bmp)
+        Invoke(New functioncall(AddressOf _DrawPicture), bmp)
+    End Sub
+
+    Private Sub _DrawPicture(ByVal bmp)
+        Me.FptPictureBox.Image = New Bitmap(bmp, Me.FptPictureBox.Size)
+    End Sub
+
+    Private Function ConvertSampleToBitmap(ByVal Sample As DPFP.Sample) As Bitmap
+        Dim bitmap As Bitmap = Nothing
+        Try
+            Dim convertor As New DPFP.Capture.SampleConversion
+            convertor.ConvertToPicture(Sample, bitmap)
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+        Return bitmap
+    End Function
+
+
+
+    Private Function ExtractFeatures(ByVal Sample As DPFP.Sample, ByVal Purpose As DPFP.Processing.DataPurpose) As DPFP.FeatureSet
+        Try
+            Dim extrator As New DPFP.Processing.FeatureExtraction
+            Dim feedback As DPFP.Capture.CaptureFeedback = CaptureFeedback.None
+            Dim features As New DPFP.FeatureSet
+
+            extrator.CreateFeatureSet(Sample, Purpose, feedback, features)
+            If (feedback = DPFP.Capture.CaptureFeedback.Good) Then
+                Return features
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+        Return Nothing
+    End Function
+
+
+
+
+    Public Sub ProcessEnroll(ByVal Sample As DPFP.Sample)
+        Try
+            DrawPicture(ConvertSampleToBitmap(Sample))
+            Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+            If Not FeaturesEnroll Is Nothing Then
+                Try
+                    ' MsgBox("The fingerprint feature set was created")
+                    enroller.AddFeatures(FeaturesEnroll)
+                Finally
+                    SetStatus("Capture finger: " & enroller.FeaturesNeeded.ToString)
+                    Select Case enroller.TemplateStatus
+                        Case DPFP.Processing.Enrollment.Status.Ready
+                            RaiseEvent ontemplate(enroller.Template)
+                            StopCapture()
+                            SetStatus("Fingerprint Templates Completed Now...")
+
+                        Case DPFP.Processing.Enrollment.Status.Failed
+                            enroller.Clear()
+                            StopCapture()
+                            RaiseEvent ontemplate(Nothing)
+                            StartCapture()
+                    End Select
+                End Try
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        End Try
+    End Sub
+
+
+
+
+
+    Public Sub ProcessEnroll11(ByVal Sample As DPFP.Sample)
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            cancelField()
+        Else
+            enrollSearchTxt.BorderColor = Color.Gray
+            Try
+                ' Validate the sample
+                If Sample Is Nothing Then
+                    SetStatus("Error: Sample is missing!")
+                    Exit Sub
+                End If
+
+                ' Convert sample to image and display it
+                DrawPicture(ConvertSampleToBitmap(Sample))
+
+                ' Extract features
+                Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+                If FeaturesEnroll Is Nothing Then
+                    SetStatus("Unable to extract features from the fingerprint.")
+                    Exit Sub
+                End If
+
+                ' Add features to the enroller
+                enroller.AddFeatures(FeaturesEnroll)
+                FingerCaptureCounts(CurrentFinger) += 1 ' Increment capture count
+
+                ' Display progress
+                SetStatus("Capturing Finger " & CurrentFinger + 1 & " : " & FingerCaptureCounts(CurrentFinger) & " / " & RequiredCapturesPerFinger)
+
+                ' Check if the current finger is fully captured
+                If FingerCaptureCounts(CurrentFinger) >= RequiredCapturesPerFinger Then
+                    If CurrentFinger < TotalFingers - 1 Then
+                        ' Move to the next finger
+                        CurrentFinger += 1
+                        SetStatus("Switch to Finger " & (CurrentFinger + 1))
+                    Else
+                        ' All fingers captured, check template status
+                        Select Case enroller.TemplateStatus
+                            Case DPFP.Processing.Enrollment.Status.Ready
+                                RaiseEvent ontemplate(enroller.Template)
+                                StopCapture()
+                                SetStatus("Enrollment Completed for All Fingers!")
+                                LabelCount.ForeColor = Color.Green
+
+                            Case DPFP.Processing.Enrollment.Status.Failed
+                                ' Reset and retry
+                                SetStatus("Enrollment Failed! Resetting process.")
+                                enroller.Clear()
+                                StopCapture()
+                                CurrentFinger = 0
+                                Array.Clear(FingerCaptureCounts, 0, FingerCaptureCounts.Length)
+                                StartCapture()
+                                RaiseEvent ontemplate(Nothing)
+                        End Select
+                    End If
+                End If
+
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End If
+    End Sub
+
+    Public Sub OnComplete(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal Sample As DPFP.Sample) Implements DPFP.Capture.EventHandler.OnComplete
+        If Me.Visible = True Then
+            Try
+                ProcessEnroll(Sample)
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End If
+    End Sub
+
+    Public Sub OnFingerGone(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerGone
+
+    End Sub
+
+    Public Sub OnFingerTouch(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerTouch
+
+    End Sub
+
+    Public Sub OnReaderConnect(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderConnect
+        ' MessageBox.Show("SUCCESS! FingerPrint Reader Connected.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+    Public Sub OnReaderDisconnect(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderDisconnect
+        MessageBox.Show("ERROR! FingerPrint Reader Disconnected.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    End Sub
+
+    Public Sub OnSampleQuality(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal CaptureFeedback As DPFP.Capture.CaptureFeedback) Implements DPFP.Capture.EventHandler.OnSampleQuality
+        MessageBox.Show("Quality", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    End Sub
+
+
+
+    Private Sub Guna2Button1_Click(sender As System.Object, e As System.EventArgs) Handles enrollSearchBtn.Click
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            cancelField()
+        Else
+            'loginTimerLoader.Start()
+            enrollSearchTxt.BorderColor = Color.Gray
+            enrollSearchBtn.Enabled = False
+
+            Dim connection = MyFunction.connection
+            Try
+                enrollSearchBtn.Enabled = True
+                connection.Open()
+                command = New MySqlCommand("SELECT a.*, b.department_name, c.level_name FROM student_tab a, department_tab b, setup_level_tab c WHERE a.department_id=b.department_id AND a.level_id=c.level_id AND (a.matric_no=@matric_no OR a.form_number=@form_number)", connection)
+                command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+                command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+                reader = command.ExecuteReader
+                reader.Read()
+
+                If reader.HasRows Then
+                    If (reader("status_id") = 1) Then
+                        Dim matric_no As String = reader("matric_no").ToString()
+                        Dim form_number As String = reader("form_number").ToString()
+                        If (enrollSearchTxt.Text = matric_no) Then
+                            matricNoFormNoTxt.Text = matric_no
+                        Else
+                            matricNoFormNoTxt.Text = form_number
+                        End If
+                        Dim std_surname As String = reader("surname").ToString()
+                        Dim std_lastname As String = reader("firstname").ToString()
+                        fullnameTxt.Text = std_surname & " " & std_lastname ' Concatenate with a space
+                        departmentTxt.Text = reader("department_name").ToString()
+                        levelTxt.Text = reader("level_name").ToString()
+                        Dim passport_url As String = reader("passport_url").ToString()
+                        Dim std_passport_pix As String = reader("passport_pix").ToString()
+                        Dim imagePath As String = passport_url & "/" & std_passport_pix
+
+                        MyFunction.getPassportPix(imagePath, enrollPassportBox)
+                        enrollSearchBtn.Enabled = True
+                    Else
+                        enrollSearchBtn.Enabled = True
+                        MessageBox.Show("STUDENT SUSPENDED! Student not eligible for enrollment. Contact admin for assistance", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End If
+
+                Else
+                    enrollSearchBtn.Enabled = True
+                    MessageBox.Show("RECORD NOT FOUND! Student not exist", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+                End If
+            Catch ex As Exception
+                enrollSearchBtn.Enabled = True
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Finally
+                ' Ensure connection is closed
+                If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                    connection.Close()
+                End If
+            End Try
+        End If
+    End Sub
+
+
+
+
+    Public Sub enrollRegistration()
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Else
+            enrollSearchTxt.BorderColor = Color.Gray
+            enrollSubmitBtn.Enabled = False
+
+            Dim connection = MyFunction.connection
+
+            Try
+                ' Open the database connection
+                connection.Open()
+                command = New MySqlCommand("SELECT * FROM student_tab WHERE matric_no=@matric_no OR form_number=@form_number", connection)
+                command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+                command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+                reader = command.ExecuteReader()
+
+                If reader.HasRows AndAlso reader.Read() Then
+                    If (reader("status_id") = 1) Then
+                        ' Extract student details
+                        Dim matric_no As String = reader("matric_no").ToString()
+                        Dim form_number As String = reader("form_number").ToString()
+                        Dim department_id As String = reader("department_id").ToString()
+                        Dim level_id As String = reader("level_id").ToString()
+
+                        ' Generate enrollment ID
+                        Dim enroll_id As String = "ENRL" & Now.ToString("yyyyMMddss")
+                        reader.Close() ' Ensure reader is closed before reusing the connection
+
+                        ' Serialize the fingerprint template
+                        Dim fs As MemoryStream = New MemoryStream
+                        enroller.Template.Serialize(fs)
+                        fs.Position = 0
+                        Dim fs_bytes() As Byte = New BinaryReader(fs).ReadBytes(CType(fs.Length, Int32))
+
+                        ' Insert enrollment record
+                        Dim query As String = "INSERT INTO enrollment_tab(enroll_id, matric_no, form_number, department_id, level_id, fingerprint_template, created_at) VALUES(@enroll_id, @matric_no, @form_number, @department_id, @level_id, @fingerprint_template, NOW())"
+                        Dim insertCommand As New MySqlCommand(query, connection)
+                        insertCommand.Parameters.AddWithValue("@enroll_id", enroll_id)
+                        insertCommand.Parameters.AddWithValue("@matric_no", matric_no)
+                        insertCommand.Parameters.AddWithValue("@form_number", form_number)
+                        insertCommand.Parameters.AddWithValue("@department_id", department_id)
+                        insertCommand.Parameters.AddWithValue("@level_id", level_id)
+                        insertCommand.Parameters.AddWithValue("@fingerprint_template", fs_bytes)
+
+                        'Execute the insert query
+                        insertCommand.ExecuteNonQuery()
+                        MessageBox.Show("SUCCESS! Student enrollment successful.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        SetStatus("Enrollment Capture Count: 4")
+                        cancelField()
+                        StopCapture()
+                        enrollSubmitBtn.Enabled = True
+                    Else
+                        MessageBox.Show("STUDENT SUSPENDED! Student is not eligible for enrollment. Contact admin for assistance.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        'cancelField()
+                        enrollSubmitBtn.Enabled = True
+
+                    End If
+                Else
+                    MessageBox.Show("RECORD NOT FOUND! Student does not exist.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    'cancelField()
+                    enrollSubmitBtn.Enabled = True
+
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                enrollSubmitBtn.Enabled = True
+            Finally
+                ' Ensure connection is closed
+                If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                    connection.Close()
+                End If
+            End Try
+        End If
+    End Sub
+
+
+    Private Sub enrollSubmitBtn_Click(sender As System.Object, e As System.EventArgs) Handles enrollSubmitBtn.Click
+        enrollRegistration()
+    End Sub
+
+
+    Private Sub Guna2Button1_Click_1(sender As System.Object, e As System.EventArgs) Handles enrollCancelBtn.Click
+        cancelField()
+        StopCapture()
+        StartCapture()
+    End Sub
+
+    
+End Class

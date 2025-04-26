@@ -1,0 +1,89 @@
+ Public Sub enrollRegistration()
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Else
+            enrollSearchTxt.BorderColor = Color.Gray
+            enrollSubmitBtn.Enabled = False
+
+            Dim connection = MyFunction.connection
+
+            Try
+                ' Open the database connection
+                connection.Open()
+                command = New MySqlCommand("SELECT * FROM student_tab WHERE matric_no=@matric_no OR form_number=@form_number", connection)
+                command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+                command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+                reader = command.ExecuteReader()
+
+                If reader.HasRows AndAlso reader.Read() Then
+                    If (reader("status_id") = 1) Then
+                        ' Extract student details
+                        Dim matric_no As String = reader("matric_no").ToString()
+                        Dim form_number As String = reader("form_number").ToString()
+                        Dim department_id As String = reader("department_id").ToString()
+                        Dim level_id As String = reader("level_id").ToString()
+
+                        ' Generate enrollment ID
+                        Dim enroll_id As String = "ENRL" & Now.ToString("yyyyMMddss")
+                        reader.Close() ' Ensure reader is closed before reusing the connection
+
+                        ' Ensure FingerTemplates is populated with four templates
+                        If FingerTemplates.Count = TotalFingers Then
+                            ' Create a List to hold the byte arrays for the templates
+                            Dim templates As New List(Of Byte())()
+
+                            ' Populate the list with byte arrays for each finger template
+                            For i As Integer = 0 To TotalFingers - 1
+                                Dim fs As New MemoryStream()
+                                FingerTemplates(i).Serialize(fs)
+                                templates.Add(fs.ToArray()) ' Add each byte array to the list
+                            Next
+
+
+                            ' Insert enrollment record into the database
+                            Dim query As String = "INSERT INTO enrollment_tab (enroll_id, matric_no, form_number, department_id, level_id, " &
+                                                  "fingerprint_template_finger1, fingerprint_template_finger2, fingerprint_template_finger3, fingerprint_template_finger4, created_at) " &
+                                                  "VALUES (@enroll_id, @matric_no, @form_number, @department_id, @level_id, @template1, @template2, @template3, @template4, NOW())"
+
+                            Dim insertCommand As New MySqlCommand(query, connection)
+                            insertCommand.Parameters.AddWithValue("@enroll_id", enroll_id)
+                            insertCommand.Parameters.AddWithValue("@matric_no", matric_no)
+                            insertCommand.Parameters.AddWithValue("@form_number", form_number)
+                            insertCommand.Parameters.AddWithValue("@department_id", department_id)
+                            insertCommand.Parameters.AddWithValue("@level_id", level_id)
+                            insertCommand.Parameters.AddWithValue("@template1", templates(0))
+                            insertCommand.Parameters.AddWithValue("@template2", templates(1))
+                            insertCommand.Parameters.AddWithValue("@template3", templates(2))
+                            insertCommand.Parameters.AddWithValue("@template4", templates(3))
+
+                            ' Execute the insert query
+                            insertCommand.ExecuteNonQuery()
+                            MessageBox.Show("SUCCESS! Student enrollment successful.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                            SetStatus("Enrollment Capture Count: 4")
+                            cancelField()
+                            StopCapture()
+                            enrollSubmitBtn.Enabled = True
+                        Else
+                            MessageBox.Show("ERROR: Finger templates are not populated correctly. Ensure all 4 fingers are captured.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            enrollSubmitBtn.Enabled = True
+                        End If
+                    Else
+                        MessageBox.Show("STUDENT SUSPENDED! Student is not eligible for enrollment. Contact admin for assistance.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        enrollSubmitBtn.Enabled = True
+                    End If
+                Else
+                    MessageBox.Show("RECORD NOT FOUND! Student does not exist.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    enrollSubmitBtn.Enabled = True
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                enrollSubmitBtn.Enabled = True
+            Finally
+                ' Ensure connection is closed
+                If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                    connection.Close()
+                End If
+            End Try
+        End If
+    End Sub

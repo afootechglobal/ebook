@@ -1,0 +1,163 @@
+import React, { useState } from "react";
+import { Link, router } from "expo-router";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, Text, View, Image, Alert } from 'react-native';
+import { images } from "../../constants";
+import { CustomButton, FormField, CustomAlert } from "../../components"; // Import the CustomAlert component
+import axios from 'axios';
+import { config } from '../../lib/config';
+
+const SignIn = () => {
+  // State to manage alert action
+  const [alertAction, setAlertAction] = useState({
+    message1: '',
+    message2: '',
+    alertSuccess: false,
+    onClose: null,
+  });
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Function to close the alert
+  const alertClose = () => {
+    setAlertAction({
+      ...alertAction,
+      onClose: null,
+    });
+  };
+
+  // Function to handle form submission
+  const submit = async () => {
+    const { email, password } = form;
+
+    // Validate email and password
+    if (!email || !password) {
+      // Trigger custom alert for missing fields
+      setAlertAction({
+        message1: 'INVALID EMAIL ADDRESS!',
+        message2: 'Check your email and try again',
+        alertSuccess: false,
+        onClose: alertClose,
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Axios request to the server for login
+      const response = await axios.post(`${config.endpoint}/admin/auth/login`, {
+        email,
+        password,
+      }, {
+        headers: {
+          'apiKey': config.apiKey,
+        }
+      });
+
+      const { success, message1, message2 } = response.data;
+
+      if (success) {
+        // Trigger custom alert for successful login
+        setAlertAction({
+          message1: message1 || 'LOGIN SUCCESSFUL!',
+          message2: message2 || 'Redirecting to the dashboard...',
+          alertSuccess: true,
+          onClose: alertClose,
+        });
+        // Navigate to dashboard after a delay
+        setTimeout(() => {
+          // router.push('/dashboard');
+        }, 2000);
+      } else {
+        // Trigger custom alert for login failure
+        setAlertAction({
+          message1: message1 || 'LOGIN FAILED!',
+          message2: message2 || 'Invalid email or password.',
+          alertSuccess: false,
+          onClose: alertClose,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      // Trigger custom alert for error
+      setAlertAction({
+        message1: 'ERROR!',
+        message2: 'Something went wrong! Please try again later.',
+        alertSuccess: false,
+        onClose: alertClose,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView className="bg-primary h-full">
+      <ScrollView contentContainerStyle={{ height: '100%' }}>
+        <View className="w-full justify-center min-h-[85vh] px-4 my-6">
+          <Image source={images.logo} resizeMode="contain" className="w-[115px] h-[35px]" />
+
+          <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
+            Sign In to Aora
+          </Text>
+
+          {/* Email field */}
+          <FormField
+            title="Email"
+            value={form.email}
+            placeholder="Enter email address"
+            handleChangeText={(e) => setForm({ ...form, email: e })}
+            otherStyles="mt-7"
+            keyboardType="email-address"
+          />
+
+          {/* Password field */}
+          <FormField
+            title="Password"
+            value={form.password}
+            placeholder="Enter your password"
+            handleChangeText={(e) => setForm({ ...form, password: e })}
+            otherStyles="mt-7"
+            secureTextEntry
+          />
+
+          {/* Sign in button */}
+          <CustomButton
+            title={isLoading ? "Signing..." : "Sign In"}
+            handlePress={submit}
+            containerStyles="mt-7"
+            isLoading={isLoading}
+          />
+
+          <View className="flex justify-center pt-[30px] flex-row gap-2">
+            <Text className="text-lg text-gray-100 font-pregular">
+              Don't have an account?
+            </Text>
+
+            <Link href="/sign-up" className="text-lg font-psemibold text-secondary">
+              Sign Up
+            </Link>
+          </View>
+        </View>
+
+        {/* Render the custom alert if the alertAction has content */}
+        {alertAction.message1 && (
+          <CustomAlert
+            visible={!!alertAction.message1} // Show the modal if message exists
+            title={alertAction.message1}
+            message={alertAction.message2}
+            alertSuccess={alertAction.alertSuccess}
+            onClose={alertAction.onClose}
+          />
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default SignIn;

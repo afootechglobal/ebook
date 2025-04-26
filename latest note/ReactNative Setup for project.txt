@@ -1,0 +1,97 @@
+REACT NATIVE SETUP AND CONFIGURATION
+
+step 1: Download and install Node.js (LTS version) from nodejs.org
+step 2: open terminal and npm install -g expo-cli
+step 3: create a project using command - npx create-expo-app MyApp. Note MyApp is project name
+step 4: naviaget to main file usind command - cd MyApp
+step 5: download expo app from playstore or app store and run on expo app use command - npx expo start
+	to clear cache use command - npx expo start -c
+
+	FOR EXPO RUN
+	To run on only android device use comand - npx expo run:android
+	To run on only IOS device use comand - npx expo run:ios
+
+	TO CABLE OR CORD TO RUN
+	npm run android - for android device
+	npm run ios - for ios device
+	
+
+step 6: To install nativewind or tailwind css
+	use command - npm install nativewind
+	to initialize use command - npx tailwindcss init
+
+step 7: create this file in your project file
+	file name - babel.config.js and add following souce code below inside the file
+	module.exports = {
+ 		 presets: ['module:metro-react-native-babel-preset'],
+ 		 plugins: [
+    		'nativewind/babel',
+    		'react-native-reanimated/plugin',
+  		],
+	};
+
+step 8: Install independencies needed for the project and these are paramount independeces to install
+	Note: check if its already install in your package.json file
+
+	npm install @react-navigation/native
+	npm install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated react-native-vector-icons @react-navigation/stack
+	
+	main installation
+	For session - npm install @react-native-async-storage/async-storage
+	npm install react-native-encrypted-storage - To Secure Storage (For Passwords, Tokens)
+	To send api request - npm install axios
+	npm install react-native-url-polyfill
+	
+	Other independecies to install if needed
+	npm install react-native-paper
+	npm install react-native-vector-icons
+	npm install expo-local-authentication - For fingerprint login
+	npm install react-native-permissions - for device React Native Permissions (For Camera, Location, etc.)
+	npm install expo-image-picker - Expo Image Picker (For Selecting Images)
+	npm install expo-camera - Expo Camera (For Taking Photos)
+	npm install expo-notifications - Expo Notifications
+
+step 9: npx expo start --clear - to restart metro bundler for expo
+
+Note: if You're encountering a PowerShell execution policy issue that prevents running scripts like npm.ps1. 
+This happens because Windows restricts script execution for security reasons.
+
+run this command if erroe occur while trying to start
+Use below command  
+Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+
+TO DEPLOY PROJECT ON EXPO GO FIRST TIME
+Step 1: npm install -g eas-cli
+Step 2: npx eas login
+Step 3: npx eas build:configure
+Step 4: update manually the eas.json file for deployment process. Goto Step 4(eas.json) below
+
+--------------- FOR ALL PLATFORM (IOS OR ANDRIOD) DEVICE ----------------------------
+npx eas build --platform all --profile production /// Build for Production (AAB and IPA)
+npx eas submit --platform all --profile production /// Submit to App Store Connect and Google Play:
+
+------------- FOR TESTING THE APPLICATION(The Project) -------------------------
+Step 5: npx eas build --platform android --profile apkProduction --non-interactive --clear-cache /// for apk file for andriod phone device and clear cache
+ 	npx eas build --platform ios --profile ipaProduction /// for ios for apple phone device (to testing internally)
+
+------------- FOR LIVE PRODUCTION APPLICATION(The Project to go live either Apple Store or Google play Store Account) -------------------------
+	npx eas build --platform android --profile production /// for andriod prodcition (AAB file for play store account deploment)
+-----------------------------------------------------------------------------------------
+	npx eas build --platform ios --profile production /// for ios production
+------------After the build completes:-----------------------`
+Note: This submits the IPA to App Store Connect, where you can then distribute it via TestFlight or publish it on the App Store. 
+	By running this command below
+
+	npx eas submit --platform ios --profile production
+			
+
+
+
+
+
+Step 4(eas.json):
+	
+
+ 
+

@@ -1,0 +1,71 @@
+ Private Sub Timer1_Tick(sender As System.Object, e As System.EventArgs) Handles TimerLoader.Tick
+        progressBar.Increment(2)
+        timerCount.Text = progressBar.Value
+        progressIndicator.Show()
+        progressIndicator.AutoStart = True
+        If (progressBar.Value >= 60) Then
+            TimerLoader.Stop()
+            progressBar.Value = 0
+            progressIndicator.Hide()
+            progressIndicator.AutoStart = False
+            MessageBox.Show("Completed!!!")
+        End If
+    End Sub
+
+
+
+
+Public Sub alertAction1(ByVal status As Boolean, ByVal textBox As Object, ByVal mesaage As String)
+        If (status = True) Then
+            textBox.BorderColor = Color.Gray
+            MessageBox.Show(mesaage, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            textBox.BorderColor = Color.Red
+            MessageBox.Show(mesaage, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+    End Sub
+    Public Sub alertAction(ByVal status As Boolean, ByVal controls As IEnumerable(Of Control), ByVal message As String)
+        If Not status Then
+            For Each ctrl As Control In controls
+                If TypeOf ctrl Is TextBox AndAlso String.IsNullOrEmpty(DirectCast(ctrl, TextBox).Text) Then
+                    ' Highlight the empty field
+                    ctrl.BackColor = Color.Red
+                End If
+            Next
+            MessageBox.Show(message, "Bank System Software", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Else
+            For Each ctrl As Control In controls
+                ' Reset the background color for valid fields
+                ctrl.BackColor = Color.White
+            Next
+        End If
+    End Sub
+
+
+
+
+
+
+
+
+
+    Public Sub getModalForm(ByVal formPage As Form, ByVal ownerForm As Form)
+        Dim formModal As New Form
+
+        Try
+            'Dim modal As New formPage
+            formModal.StartPosition = FormStartPosition.WindowsDefaultLocation
+            formModal.FormBorderStyle = FormBorderStyle.None
+            formModal.Opacity = 0.5D
+            formModal.BackColor = Color.Black
+            formModal.WindowState = FormWindowState.Maximized
+            formModal.TopMost = False
+            ' formModal.Location = ListViewHitTestLocations
+            formModal.ShowInTaskbar = False
+            formModal.Show()
+            formPage.Owner = formModal
+            formPage.ShowDialog()
+        Catch ex As Exception
+            formModal.Dispose()
+        End Try
+    End Sub

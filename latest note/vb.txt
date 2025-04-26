@@ -1,0 +1,47 @@
+Public Class index
+
+    Private Sub index_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+        Me.Opacity = 0 ' Start with fully transparent
+        StartFadeIn(Me) ' Trigger fade-in effect, passing the current form
+    End Sub
+
+   
+    Private Sub Guna2PictureBox2_Click(sender As System.Object, e As System.EventArgs) Handles Guna2PictureBox2.Click
+
+    End Sub
+End Class
+
+
+
+
+Imports System.Threading
+
+Module MyFunction
+    ' Timer to fade in the form
+    Dim fadeTimer As Timer
+
+    ' Method to start fade-in effect
+    Public Sub StartFadeIn(form As Form)
+        ' Create and start the fade-in timer
+        fadeTimer = New Timer(AddressOf FadeIn, form, 0, 50)
+    End Sub
+
+    ' Timer callback to gradually change opacity
+    Public Sub FadeIn(ByVal state As Object)
+        Dim form As Form = CType(state, Form)
+        If form.InvokeRequired Then
+            form.Invoke(New MethodInvoker(Sub() FadeIn(state)))
+        Else
+            If form.Opacity < 1 Then
+                form.Opacity += 0.05 ' Increment opacity by 5%
+            Else
+                fadeTimer.Change(Timeout.Infinite, Timeout.Infinite) ' Stop the timer
+            End If
+        End If
+    End Sub
+
+
+
+
+End Module
+

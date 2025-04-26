@@ -1,0 +1,137 @@
+
+function _cbtQuestion(){
+	$(document).ready(function() {
+		const questions = [{
+				question: "_______ is a name of anything, animal place or thing",
+				options: ["Noun", "Pronoun", "Adjective", "Verb", "Adverb"],
+				selectedOption: null, // Track selected option
+			},
+			{
+				question: "_______ is a place where people live and work",
+				options: ["City", "Town", "Village", "Country", "Community"],
+				selectedOption: null,
+				image: "http://localhost/projects/leaderstutors.com/account/all-images/images/village.jpg" // Example image
+			},
+			{
+				question: "_______ is a machine used to compute",
+				options: ["Computer", "Calculator", "Smartphone", "Tablet", "Abacus"],
+				selectedOption: null,
+				image: "http://localhost/projects/leaderstutors.com/account/all-images/images/laptop.jpg", // Example image
+			},
+			{
+				question: "_______ is the fastest land animal",
+				options: ["Cheetah", "Lion", "Horse", "Tiger", "Elephant"],
+				selectedOption: null,
+			},
+
+		];
+
+		let currentQuestionIndex = 0;
+		const $questionDiv = $("#questionID");
+		const $questionTextId = $("#questionTextId");
+		const $optionsContainerId = $("#optionsContainerId");
+		const $numButtonContainerId = $("#numButtonContainerId");
+		const $imageContainerId = $("#imageContainerId"); // Container for the image
+		const $nextButton = $("#next"); // Cache the Next button
+		const $prevButton = $("#previous"); // Cache the Previous button
+
+		// Generate number buttons dynamically
+		function generateNumButtons() {
+			$numButtonContainerId.empty(); // Clear existing buttons
+			questions.forEach((_, index) => {
+				const numButtonHTML = `
+					<button class="num-btn" id="numBtnId" data-index="${index}">${index + 1}</button>
+					`;
+				$numButtonContainerId.append(numButtonHTML);
+			});
+
+			// Add click event listeners to number buttons
+			$(".num-btn").click(function() {
+				currentQuestionIndex = $(this).data("index");
+				updateQuestion();
+			});
+		}
+
+		// Update question and options
+		function updateQuestion() {
+			const currentQuestion = questions[currentQuestionIndex];
+			$questionDiv.text(`Question ${currentQuestionIndex + 1}`);
+			$questionTextId.text(currentQuestion.question);
+
+			// Handle image
+			if (currentQuestion.image) {
+				$imageContainerId.html(`<img src="${currentQuestion.image}" alt="Question Image" />`);
+				$imageContainerId.show();
+				$(".question").css("display", "flex");
+				$(".text-with-img").css("width", "100%");
+			} else {
+				$imageContainerId.hide(); // Hide the image container
+				$(".question").css("display", "block");
+			}
+			// Clear existing options
+			$optionsContainerId.find("label").remove();
+
+			// Add new options
+			currentQuestion.options.forEach((option, index) => {
+				const isChecked = currentQuestion.selectedOption === index ? "checked" : "";
+				const optionHTML = `
+			<label>
+				<div class="question-option-div">
+					<div class="option-container-div">
+						<input type="radio" class="checkfield" name="option" value="${index}" ${isChecked} />
+						<div class="option-div">${String.fromCharCode(65 + index)}</div>
+						${option}
+					</div>
+				</div>
+			</label>`;
+				$optionsContainerId.append(optionHTML);
+			});
+
+			$(".checkfield").change(function() {
+				const selectedValue = parseInt($(this).val());
+				questions[currentQuestionIndex].selectedOption = selectedValue;
+				// Highlight the corresponding number button as answered
+				$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("answered");
+			});
+
+			// Highlight the active number button
+			$(".num-btn").removeClass("active");
+			$(`.num-btn[data-index="${currentQuestionIndex}"]`).addClass("active");
+
+			// Update Next button text
+			if (currentQuestionIndex === questions.length - 1) {
+				$nextButton.text("Finish").off("click").click(finishQuiz);
+			} else {
+				$nextButton.text("Next").off("click").click(nextQuestion);
+			}
+		}
+
+		// Handle Previous button
+		$prevButton.click(function() {
+			if (currentQuestionIndex > 0) {
+				currentQuestionIndex--;
+				updateQuestion();
+			}
+		});
+
+		// Handle Next button
+		function nextQuestion() {
+			if (currentQuestionIndex < questions.length - 1) {
+				currentQuestionIndex++;
+				updateQuestion();
+			}
+		}
+
+		// Handle Finish button
+		function finishQuiz() {
+			_getPageCbt('cbt_statistics', '');
+			//  alert("Quiz finished!"); // Replace with desired finish behavior
+			// Example: Redirect to results page or submit answers
+			// window.location.href = "results.html";
+		}
+
+		// Initialize the quiz
+		generateNumButtons();
+		updateQuestion();
+	});
+}

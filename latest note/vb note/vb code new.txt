@@ -1,0 +1,432 @@
+Imports DPFP
+Imports DPFP.Capture
+Imports DPFP.Verification
+Imports MySql.Data.MySqlClient
+Imports System.IO
+Imports System.Data
+Imports System.Drawing
+Imports System.Text.RegularExpressions
+
+Public Class enrollmentFormPage
+    Implements DPFP.Capture.EventHandler
+
+
+    Private capturer As DPFP.Capture.Capture
+    Delegate Sub functioncall(ByVal param)
+    Private Event ontemplate(ByVal template)
+    Private enroller As DPFP.Processing.Enrollment
+    Dim connection As MySqlConnection
+    Dim connstring As String
+    Dim reader As MySqlDataReader
+    Dim command As New MySqlCommand
+    Dim query As String
+    Dim mstream As New MemoryStream
+    Dim arrimage() As Byte
+    Dim DT As New DataTable
+    Public login_staff_id As String
+
+
+    Private FingerCaptureCounts As Integer() = New Integer(3) {} ' Array to track capture counts for 10 fingers
+    Private CurrentFinger As Integer = 0 ' Start with the first finger (index 0)
+    Private Const RequiredCapturesPerFinger As Integer = 4 ' Number of captures required per finger
+    Private Const TotalFingers As Integer = 4 ' Total number of fingers
+
+    Private Sub enrollmentFormPage_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+        MyFunction.styleDynamicBorderRadius(enrollSearchBtn, 1, 23) ' Apply 20px radius to the left side
+
+        CenterToParent()
+        InitializeCapture()
+        StartCapture()
+        cancelField()
+        MessageBox.Show("YES its ENROLLMENT PAGE")
+    End Sub
+
+    Private Sub cancelField()
+        enrollSearchTxt.Text = ""
+        matricNoFormNoTxt.Text = ""
+        fullnameTxt.Text = ""
+        departmentTxt.Text = ""
+        levelTxt.Text = ""
+        passportBox = MyFunction.getPassportPix(MyFunction.defaultPixUrl(), passportBox)
+        FptPictureBox.Image = Nothing
+    End Sub
+
+    Protected Sub SetStatus(ByVal status)
+        Try
+            Invoke(New functioncall(AddressOf _SetStatus), status)
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub _SetStatus(ByVal status)
+        Try
+            Me.LabelCount.Text = status
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    ' initialize biometric capture
+    Public Overridable Sub InitializeCapture()
+        Try
+            capturer = New DPFP.Capture.Capture
+            enroller = New DPFP.Processing.Enrollment
+            Me.LabelCount.Text = ("Enrollment Capture Count: " & enroller.FeaturesNeeded.ToString)
+            If (Not capturer Is Nothing) Then
+                capturer.EventHandler = Me
+            Else
+                MessageBox.Show("Can't Initialize Capture Operation", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
+    End Sub
+
+    ' Start fingerprint capture
+    Public Sub StartCapture()
+        Try
+            capturer.StartCapture()
+            SetStatus("Fingerprint capture started. Place your finger on the scanner.")
+        Catch ex As Exception
+            MessageBox.Show("Failed to start capture: " & ex.Message)
+        End Try
+    End Sub
+
+    ' Stop fingerprint capture
+    Public Sub StopCapture()
+        Try
+            capturer.StopCapture()
+            SetStatus("Fingerprint capture stopped.")
+        Catch ex As Exception
+            MessageBox.Show("Failed to stop capture: " & ex.Message)
+        End Try
+    End Sub
+
+
+    Protected Sub DrawPicture(ByVal bmp)
+        Invoke(New functioncall(AddressOf _DrawPicture), bmp)
+    End Sub
+
+    Private Sub _DrawPicture(ByVal bmp)
+        Me.FptPictureBox.Image = New Bitmap(bmp, Me.FptPictureBox.Size)
+    End Sub
+
+    Private Function ConvertSampleToBitmap(ByVal Sample As DPFP.Sample) As Bitmap
+        Dim bitmap As Bitmap = Nothing
+        Try
+            Dim convertor As New DPFP.Capture.SampleConversion
+            convertor.ConvertToPicture(Sample, bitmap)
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+        Return bitmap
+    End Function
+
+
+
+    Private Function ExtractFeatures(ByVal Sample As DPFP.Sample, ByVal Purpose As DPFP.Processing.DataPurpose) As DPFP.FeatureSet
+        Try
+            Dim extrator As New DPFP.Processing.FeatureExtraction
+            Dim feedback As DPFP.Capture.CaptureFeedback = CaptureFeedback.None
+            Dim features As New DPFP.FeatureSet
+
+            extrator.CreateFeatureSet(Sample, Purpose, feedback, features)
+            If (feedback = DPFP.Capture.CaptureFeedback.Good) Then
+                Return features
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+        Return Nothing
+    End Function
+
+
+
+
+    Public Sub ProcessEnroll(ByVal Sample As DPFP.Sample)
+        Try
+            DrawPicture(ConvertSampleToBitmap(Sample))
+            Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+            If Not FeaturesEnroll Is Nothing Then
+                Try
+                    ' MsgBox("The fingerprint feature set was created")
+                    enroller.AddFeatures(FeaturesEnroll)
+                Finally
+                    SetStatus("Capture finger: " & enroller.FeaturesNeeded.ToString)
+                    Select Case enroller.TemplateStatus
+                        Case DPFP.Processing.Enrollment.Status.Ready
+                            RaiseEvent ontemplate(enroller.Template)
+                            StopCapture()
+                            SetStatus("Fingerprint Templates Completed Now...")
+
+                        Case DPFP.Processing.Enrollment.Status.Failed
+                            enroller.Clear()
+                            StopCapture()
+                            RaiseEvent ontemplate(Nothing)
+                            StartCapture()
+                    End Select
+                End Try
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        End Try
+    End Sub
+
+
+
+
+
+    Public Sub ProcessEnroll11(ByVal Sample As DPFP.Sample)
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            cancelField()
+        Else
+            enrollSearchTxt.BorderColor = Color.Gray
+            Try
+                ' Validate the sample
+                If Sample Is Nothing Then
+                    SetStatus("Error: Sample is missing!")
+                    Exit Sub
+                End If
+
+                ' Convert sample to image and display it
+                DrawPicture(ConvertSampleToBitmap(Sample))
+
+                ' Extract features
+                Dim FeaturesEnroll As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
+                If FeaturesEnroll Is Nothing Then
+                    SetStatus("Unable to extract features from the fingerprint.")
+                    Exit Sub
+                End If
+
+                ' Add features to the enroller
+                enroller.AddFeatures(FeaturesEnroll)
+                FingerCaptureCounts(CurrentFinger) += 1 ' Increment capture count
+
+                ' Display progress
+                SetStatus("Capturing Finger " & CurrentFinger + 1 & " : " & FingerCaptureCounts(CurrentFinger) & " / " & RequiredCapturesPerFinger)
+
+                ' Check if the current finger is fully captured
+                If FingerCaptureCounts(CurrentFinger) >= RequiredCapturesPerFinger Then
+                    If CurrentFinger < TotalFingers - 1 Then
+                        ' Move to the next finger
+                        CurrentFinger += 1
+                        SetStatus("Switch to Finger " & (CurrentFinger + 1))
+                    Else
+                        ' All fingers captured, check template status
+                        Select Case enroller.TemplateStatus
+                            Case DPFP.Processing.Enrollment.Status.Ready
+                                RaiseEvent ontemplate(enroller.Template)
+                                StopCapture()
+                                SetStatus("Enrollment Completed for All Fingers!")
+                                LabelCount.ForeColor = Color.Green
+
+                            Case DPFP.Processing.Enrollment.Status.Failed
+                                ' Reset and retry
+                                SetStatus("Enrollment Failed! Resetting process.")
+                                enroller.Clear()
+                                StopCapture()
+                                CurrentFinger = 0
+                                Array.Clear(FingerCaptureCounts, 0, FingerCaptureCounts.Length)
+                                StartCapture()
+                                RaiseEvent ontemplate(Nothing)
+                        End Select
+                    End If
+                End If
+
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End If
+    End Sub
+
+    Public Sub OnComplete(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal Sample As DPFP.Sample) Implements DPFP.Capture.EventHandler.OnComplete
+        If Me.Visible = True Then
+            Try
+                ProcessEnroll(Sample)
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End If
+    End Sub
+
+    Public Sub OnFingerGone(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerGone
+
+    End Sub
+
+    Public Sub OnFingerTouch(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerTouch
+
+    End Sub
+
+    Public Sub OnReaderConnect(Capture As Object, ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderConnect
+        ' MessageBox.Show("SUCCESS! FingerPrint Reader Connected.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    End Sub
+    Public Sub OnReaderDisconnect(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderDisconnect
+        MessageBox.Show("ERROR! FingerPrint Reader Disconnected.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    End Sub
+
+    Public Sub OnSampleQuality(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal CaptureFeedback As DPFP.Capture.CaptureFeedback) Implements DPFP.Capture.EventHandler.OnSampleQuality
+        MessageBox.Show("Quality", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    End Sub
+
+
+
+    Private Sub Guna2Button1_Click(sender As System.Object, e As System.EventArgs) Handles enrollSearchBtn.Click
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            cancelField()
+        Else
+            'loginTimerLoader.Start()
+            enrollSearchTxt.BorderColor = Color.Gray
+            enrollSearchBtn.Enabled = False
+
+            Dim connection = MyFunction.connection
+            Try
+                enrollSearchBtn.Enabled = True
+                connection.Open()
+                command = New MySqlCommand("SELECT a.*, b.department_name, c.level_name FROM student_tab a, department_tab b, setup_level_tab c WHERE a.department_id=b.department_id AND a.level_id=c.level_id AND (a.matric_no=@matric_no OR a.form_number=@form_number)", connection)
+                command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+                command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+                reader = command.ExecuteReader
+                reader.Read()
+
+                If reader.HasRows Then
+                    If (reader("status_id") = 1) Then
+                        Dim matric_no As String = reader("matric_no").ToString()
+                        Dim form_number As String = reader("form_number").ToString()
+                        If (enrollSearchTxt.Text = matric_no) Then
+                            matricNoFormNoTxt.Text = matric_no
+                        Else
+                            matricNoFormNoTxt.Text = form_number
+                        End If
+                        Dim std_surname As String = reader("surname").ToString()
+                        Dim std_lastname As String = reader("firstname").ToString()
+                        fullnameTxt.Text = std_surname & " " & std_lastname ' Concatenate with a space
+                        departmentTxt.Text = reader("department_name").ToString()
+                        levelTxt.Text = reader("level_name").ToString()
+                        Dim passport_url As String = reader("passport_url").ToString()
+                        Dim std_passport_pix As String = reader("passport_pix").ToString()
+                        Dim imagePath As String = passport_url & "/" & std_passport_pix
+
+                        MyFunction.getPassportPix(imagePath, passportBox)
+                        enrollSearchBtn.Enabled = True
+                    Else
+                        enrollSearchBtn.Enabled = True
+                        MessageBox.Show("STUDENT SUSPENDED! Student not eligible for enrollment. Contact admin for assistance", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End If
+
+                Else
+                    enrollSearchBtn.Enabled = True
+                    MessageBox.Show("RECORD NOT FOUND! Student not exist", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+                End If
+            Catch ex As Exception
+                enrollSearchBtn.Enabled = True
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Finally
+                ' Ensure connection is closed
+                If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                    connection.Close()
+                End If
+            End Try
+        End If
+    End Sub
+
+
+
+
+    Public Sub enrollRegistration()
+        If (enrollSearchTxt.Text = "") Then
+            enrollSearchTxt.BorderColor = Color.Red
+            MessageBox.Show("ERROR! Fill in student matric no or form no to verify student details", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Else
+            enrollSearchTxt.BorderColor = Color.Gray
+            enrollSubmitBtn.Enabled = False
+
+            Dim connection = MyFunction.connection
+
+            Try
+                ' Open the database connection
+                connection.Open()
+                command = New MySqlCommand("SELECT * FROM student_tab WHERE matric_no=@matric_no OR form_number=@form_number", connection)
+                command.Parameters.AddWithValue("@matric_no", enrollSearchTxt.Text.ToString)
+                command.Parameters.AddWithValue("@form_number", enrollSearchTxt.Text.ToString)
+                reader = command.ExecuteReader()
+
+                If reader.HasRows AndAlso reader.Read() Then
+                    If (reader("status_id") = 1) Then
+                        ' Extract student details
+                        Dim matric_no As String = reader("matric_no").ToString()
+                        Dim form_number As String = reader("form_number").ToString()
+                        Dim department_id As String = reader("department_id").ToString()
+                        Dim level_id As String = reader("level_id").ToString()
+
+                        ' Generate enrollment ID
+                        Dim enroll_id As String = "ENRL" & Now.ToString("yyyyMMddss")
+                        reader.Close() ' Ensure reader is closed before reusing the connection
+
+                        ' Serialize the fingerprint template
+                        Dim fs As MemoryStream = New MemoryStream
+                        enroller.Template.Serialize(fs)
+                        fs.Position = 0
+                        Dim fs_bytes() As Byte = New BinaryReader(fs).ReadBytes(CType(fs.Length, Int32))
+
+                        ' Insert enrollment record
+                        Dim query As String = "INSERT INTO enrollment_tab(enroll_id, matric_no, form_number, department_id, level_id, fingerprint_template, created_at) VALUES(@enroll_id, @matric_no, @form_number, @department_id, @level_id, @fingerprint_template, NOW())"
+                        Dim insertCommand As New MySqlCommand(query, connection)
+                        insertCommand.Parameters.AddWithValue("@enroll_id", enroll_id)
+                        insertCommand.Parameters.AddWithValue("@matric_no", matric_no)
+                        insertCommand.Parameters.AddWithValue("@form_number", form_number)
+                        insertCommand.Parameters.AddWithValue("@department_id", department_id)
+                        insertCommand.Parameters.AddWithValue("@level_id", level_id)
+                        insertCommand.Parameters.AddWithValue("@fingerprint_template", fs_bytes)
+
+                        'Execute the insert query
+                        insertCommand.ExecuteNonQuery()
+                        MessageBox.Show("SUCCESS! Student enrollment successful.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        SetStatus("Enrollment Capture Count: 4")
+                        cancelField()
+                        StopCapture()
+                        enrollSubmitBtn.Enabled = True
+                    Else
+                        MessageBox.Show("STUDENT SUSPENDED! Student is not eligible for enrollment. Contact admin for assistance.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        'cancelField()
+                        enrollSubmitBtn.Enabled = True
+
+                    End If
+                Else
+                    MessageBox.Show("RECORD NOT FOUND! Student does not exist.", "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    'cancelField()
+                    enrollSubmitBtn.Enabled = True
+
+                End If
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message, "TrackSmart App", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                enrollSubmitBtn.Enabled = True
+            Finally
+                ' Ensure connection is closed
+                If connection IsNot Nothing AndAlso connection.State = ConnectionState.Open Then
+                    connection.Close()
+                End If
+            End Try
+        End If
+    End Sub
+
+
+    Private Sub enrollSubmitBtn_Click(sender As System.Object, e As System.EventArgs) Handles enrollSubmitBtn.Click
+        enrollRegistration()
+    End Sub
+
+
+    Private Sub Guna2Button1_Click_1(sender As System.Object, e As System.EventArgs) Handles enrollCancelBtn.Click
+        cancelField()
+        StopCapture()
+        StartCapture()
+    End Sub
+
+    
+End Class
