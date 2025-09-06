@@ -1,0 +1,36 @@
+// function _hide_and_show_wallet(user_id) {
+// 	var user_wallet_balance = document.getElementById("user_wallet_balance");
+// 	var user_mobile_wallet_balance = document.getElementById("user_mobile_wallet_balance");
+
+// 	if ((user_wallet_balance.style.display === 'none') || (user_mobile_wallet_balance.style.display === 'none')) {
+// 		var action = 'fetch_user_api';
+// 		var dataString = 'action=' + action + '&user_id=' + user_id;
+// 		$.ajax({
+// 			type: "POST",
+// 			url: user_api,
+// 			data: dataString,
+// 			dataType: 'json',
+// 			cache: false,
+// 			success: function (info) {
+// 				var login_check = info.check;
+// 				if (login_check > 0) {
+// 					var fetch = info.data;
+// 					var wallet_balance = fetch.wallet_balance;
+// 					////////////////////////////////////////////?
+// 					$('#user_wallet_balance,#user_mobile_wallet_balance').css("display", "inline");
+// 					$("#text_in,#mobile_text_in").html('');
+// 					$("#user_wallet_balance,#user_mobile_wallet_balance").html(numberwithcomma(wallet_balance));
+// 					$("#hide_show,#mobile_hide_show").html('<i class="bi-eye"></i>');
+// 					// ////////////////////////////////////////////
+// 				} else {
+// 					_get_form('access_key_validation_info');
+// 				}
+// 			}
+// 		});
+// 	} else {
+// 		$("#text_in,#mobile_text_in").html('****');
+// 		$("#hide_show,#mobile_hide_show").html('<i class="bi-eye-slash"></i>');
+// 		$('#user_wallet_balance,#user_mobile_wallet_balance').css("display", "none");
+// 	}
+
+// }

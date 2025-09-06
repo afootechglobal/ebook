@@ -1,0 +1,16 @@
+"MATRIC NUMBER","FIRSTNAME","LASTNAME","NICKNAME","EMAIL","PHONE NUMBER","SELECT LEVEL","POST/OFFICE","ACADEMIC SESSION","UPLOAD PICTURE"
+"22/305/01/f/0009","ADEOSUN ","QUADRI","OBA","Olamidequadri849@gmail.com","07061407644","HND II","FINANCIAL SECRETARY ","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=1wk_AayOJl0HVqXp4PKBrzOADPfpOy_Ff"
+"19/69/0065","Lawal","Oladimeji","Nhill","wasiutosin311@gmail.com","07044838525","HND II","Vice president ","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=1AM-oMxAh0bADAYxirfP1NuNOEqLRp1vh"
+"19/69/0054","Oladapo","Kehinde ","Kenny ","Oladapokehinde542@gmail.com","09072863826","HND II","Welfare director ","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=1N8He1LrFuLOzrk0TZT9fGJV8sZ9gLkP4"
+"19/69/0292","Fenuyi","Ifetayo ","Ifetayo","fenuyii@gmail.com","07081104595","HND II","General secretary ","2019/2024","https://drive.google.com/u/0/open?usp=forms_web&id=1vLBZKKjk3xpyL6R4XuG-_iE_KwKlHcGP"
+"19/85/0032","Busari","Opeyemi","Honeydrop ","Opeyemibusari24@gmail.com","07078805118","HND II","Treasurer ","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=19Cr6hflR6v6UHjNZaenYMd3cGNeOHJmG"
+"19/69/0164","Akinola","Sodiq","Sweedy","akinolasodiq28@gmail.com","08096475922","HND II","Sport Director","2024","https://drive.google.com/u/0/open?usp=forms_web&id=1Co0RW8URXwWt9TQ1APWB3KBvxoe3p5Ao"
+"22/105/01/p/0170","Adekunle ","Adejimi ","Black diamond ","Adekunleadejimi2@gmail.com","09063886951","ND II","Vice President 2","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=1oSaYv590MJQoT-aF6pPEPyW6r17mCqTc"
+"19/69/0081","Adebiyi","Abdulsamod","Absam","adebiyiabdulsamod@gmail.com","09068923884","HND II","Software Director","2024/2025","https://drive.google.com/u/0/open?usp=forms_web&id=10goYVNG69IFYuC-b3RXIo7RUGfdLyMsS"
+"22/105/01/p/0065","Fatia ","Temilade ","Temi ","sulaimontemiladefathia@gmail.com","08165144089","ND II","Auditor","2023/2024","https://drive.google.com/u/0/open?usp=forms_web&id=124SIw9ESN9ddTSaT0-XJVpTFpWW-ni9t"
+"22/105/01/F/0101","Joshua ","Dickson ","Joskidneymar ","Joshuaneymar202@gmail.com ","08025247233","ND II","PRO 2 ","2023/2024 ","https://drive.google.com/u/0/open?usp=forms_web&id=1CASh1eoxwyFmk99Cx61Zit0W_weSaPr5"
+
+
+
+INSERT INTO `executive_tab`
+(`exco_id`, `matric_no`, `surname`, `firstname`, `nickname`, `email`, `phone`, `level_id`, `post_id`, `status_id`, `profile_pix`, `academics_session`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES 
