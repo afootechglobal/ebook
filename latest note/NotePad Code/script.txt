@@ -1,0 +1,375 @@
+function _fetchEachEvent(publish_id) {
+	let page_session = JSON.parse(sessionStorage.getItem("page_session"));
+	if (page_session == null) {
+		_get_page_session_value('reload')
+	} else {
+		const dataString = 'publish_id=' + publish_id + '&page_session=' + page_session;
+		try {
+			$.ajax({
+				type: "POST",
+				url: endPoint + '/site/event/fetch-each-event',
+				data: dataString,
+				dataType: "json",
+				cache: false,
+				headers: {
+					'apiKey': apiKey
+				},
+				success: function (info) {
+					const success = info.success;
+					const message = info.message;
+
+					if (success == true) {
+						const data = info.data[0];
+						const reg_title = data.reg_title;
+						const reg_pix = data.reg_pix;
+						const seo_description = data.seo_description;
+						const main_page_url = data.page_url;
+						const page_content = data.page_content;
+						const updated_time = data.updated_time;
+						const event_start_time = data.event_start_time + ' ' + data.event_start_meridian;
+						const event_end_time = data.event_end_time + ' ' + data.event_end_meridian;
+
+						const fullname = capitalizeFirstLetterOfEachWord(data.fullname);
+						const formattedDate = formatDate(updated_time);
+						const page_view = data.page_view;
+						const documentStoragePath = data.documentStoragePath;
+
+						$('#event_reg_title, #event_top_title').html(reg_title);
+						$('#event_seo_description').html(seo_description);
+						$('#event_page_content').html(page_content);
+						$('#fullname').html(fullname);
+						$('#formattedDate').html(formattedDate);
+						$('#page_view').html(page_view);
+						$('#page_date_time').html(event_start_time + ' - ' + event_end_time);
+						$('#main_event_preview').attr('src', documentStoragePath + '/' + reg_pix);
+
+						$('#event-home-link').attr('href', website_url);
+						$('#event-sermon-link').attr('href', website_url + '/event');
+						$('#event-sermon-title-link').attr('href', website_url + '/event/' + main_page_url);
+
+					} else {
+						_actionAlert(message, false);
+					}
+				},
+				error: function (textStatus, errorThrown) {
+					console.error("AJAX Error: ", textStatus, errorThrown);
+					_actionAlert('An error occurred while processing your request: Please try again', false);
+				}
+			});
+		} catch (error) {
+			console.error("Error: ", error);
+			_actionAlert('An error occurred while processing your request: ' + error, false);
+		}
+	}
+}
+
+function _fetchEventPictures(publish_id) {
+	const dataString = 'publish_id=' + publish_id;
+	try {
+		$.ajax({
+			type: "POST",
+			url: endPoint + '/site/event/fetch-pages-pictures',
+			data: dataString,
+			dataType: "json",
+			cache: false,
+			headers: {
+				'apiKey': apiKey
+			},
+			success: function (info) {
+				const fetch = info.gallery;
+				const success = info.success;
+				const message = info.message;
+
+				let no = 0;
+				let text = '';
+				if (success === true) {
+					for (let i = 0; i < fetch.length; i++) {
+						no++
+						const publish_id = fetch[i].publish_id;
+						const pictures = fetch[i].pictures;
+						const documentStoragePath = fetch[i].documentStoragePath;
+
+						text +=
+
+							'<div class="each-img-div" title="Click to Preview" id="img' + no + '" onclick="_view_preview_img(' + "'" + 'img' + no + "'" + ')">' +
+							'<img src="' + documentStoragePath + '/' + pictures + '" alt="' + publish_id + '"/>' +
+							'</div>';
+					}
+					$('#fetchEventPictures').html(text);
+				} else {
+					text +=
+						'<div class="false-notification-div">' +
+						"<p> " + message + " </p>" +
+						"</div>";
+					$('#fetchEventPictures').html(text);
+				}
+				_slideImages();
+			},
+			error: function (textStatus, errorThrown) {
+				console.error("AJAX Error: ", textStatus, errorThrown);
+				_actionAlert('An error occurred while processing your request: Please try again', false);
+			}
+		});
+	} catch (error) {
+		console.error("Error: ", error);
+		_actionAlert('An error occurred while processing your request: ' + error, false);
+	}
+}
+
+
+function _fetchMainRelatedEvent() {
+	$('#fetchMainRelatedEvent').html('<div class="ajax-loader"><img src="' + website_url + '/all-images/images/spinner.gif" alt="Loading"/></div>').fadeIn("fast");
+	try {
+		$.ajax({
+			type: "POST",
+			url: endPoint + '/site/event/fetch-related-event',
+			dataType: "json",
+			cache: false,
+			headers: {
+				'apiKey': apiKey
+			},
+			success: function (info) {
+				const fetch = info.data;
+				const success = info.success;
+				const message = info.message;
+
+				let text = '';
+				if (success === true) {
+					for (let i = 0; i < fetch.length; i++) {
+						const reg_title = fetch[i].reg_title;
+						const reg_pix = fetch[i].reg_pix;
+						const cat_name = fetch[i].cat_name;
+						const page_url = fetch[i].page_url;
+						const page_view = fetch[i].page_view;
+						const updated_time = fetch[i].updated_time;
+						const documentStoragePath = fetch[i].documentStoragePath;
+						const formattedDate = formatDate(updated_time);
+
+						text +=
+							'<a href="' + website_url + '/event/' + page_url + '" title="' + reg_title + '">' +
+							'<div class="related-post">' +
+							'<div class="image-div">' +
+							'<img src="' + documentStoragePath + '/' + reg_pix + '" alt="' + reg_title + '"/>' +
+							'</div>' +
+							'<div class="cont-div">' +
+							'<div class="comment"> ' + cat_name + '  </span></div>' +
+							'<h3>' + reg_title + '</h3>' +
+							'<div class="comment"><i class="bi-clock"></i> <span> ' + formattedDate + ' </span> | <i class="bi-eye-fill"></i> <span> ' + page_view + ' Views </span></div>' +
+							'</div>' +
+							'</div></a>';
+					}
+					$('#fetchMainRelatedEvent').html(text);
+				} else {
+					text +=
+						'<div class="false-notification-div">' +
+						"<p> " + message + " </p>" +
+						"</div>";
+					$('#fetchMainRelatedEvent').html(text);
+				}
+			},
+			error: function (textStatus, errorThrown) {
+				console.error("AJAX Error: ", textStatus, errorThrown);
+				_actionAlert('An error occurred while processing your request: Please try again', false);
+			}
+		});
+	} catch (error) {
+		console.error("Error: ", error);
+		_actionAlert('An error occurred while processing your request: ' + error, false);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function _fetchMainRelatedBlog() {
+	$('#fetchMainRelatedBlog').html('<div class="ajax-loader blog-ajax-loader"><img src="' + website_url + '/all-images/images/spinner.gif" alt="Loading"/></div>').fadeIn("fast");
+	try {
+		$.ajax({
+			type: "POST",
+			url: endPoint + '/site/blog/fetch-index-blog',
+			dataType: "json",
+			cache: false,
+			headers: {
+				'apiKey': apiKey
+			},
+			success: function (info) {
+				const fetch = info.data;
+				const success = info.success;
+				const message = info.message;
+
+				let text = '';
+				if (success === true) {
+					for (let i = 0; i < fetch.length; i++) {
+						const reg_title = fetch[i].reg_title;
+						const reg_pix = fetch[i].reg_pix;
+						const page_url = fetch[i].page_url;
+						const blog_view = fetch[i].blog_view;
+						const updated_time = fetch[i].updated_time;
+						const documentStoragePath = fetch[i].documentStoragePath;
+						const formattedDate = formatDate(updated_time);
+
+						text +=
+							'<a href="' + website_url + '/blog/' + page_url + '" title="' + reg_title + '">' +
+							'<div class="related-post">' +
+							'<div class="image-div">' +
+							'<img src="' + documentStoragePath + '/' + reg_pix + '" alt="' + reg_title + '"/>' +
+							'</div>' +
+							'<div class="cont-div">' +
+							'<h3>' + reg_title + '</h3>' +
+							'<div class="comment"><i class="bi-clock"></i> <span> ' + formattedDate + ' </span> | <i class="bi-eye-fill"></i> <span> ' + blog_view + ' Views </span></div>' +
+							'</div>' +
+							'</div></a>';
+					}
+					$('#fetchMainRelatedBlog').html(text);
+				} else {
+					text +=
+						'<div class="false-notification-div">' +
+						"<p> " + message + " </p>" +
+						"</div>";
+					$('#fetchMainRelatedBlog').html(text);
+				}
+			},
+			error: function (textStatus, errorThrown) {
+				console.error("AJAX Error: ", textStatus, errorThrown);
+				_actionAlert('An error occurred while processing your request: Please try again', false);
+			}
+		});
+	} catch (error) {
+		console.error("Error: ", error);
+		_actionAlert('An error occurred while processing your request: ' + error, false);
+	}
+}
+function _fetchEachBlog(publish_id) {
+	let page_session = JSON.parse(sessionStorage.getItem("page_session"));
+	if (page_session == null) {
+		_get_page_session_value('reload')
+	} else {
+
+		const dataString = 'publish_id=' + publish_id + '&page_session=' + page_session;
+		try {
+			$.ajax({
+				type: "POST",
+				url: endPoint + '/site/blog/fetch-each-blog',
+				data: dataString,
+				dataType: "json",
+				cache: false,
+				headers: {
+					'apiKey': apiKey
+				},
+				success: function (info) {
+					const success = info.success;
+					const message = info.message;
+
+					if (success == true) {
+						const data = info.data[0];
+						const reg_title = data.reg_title;
+						const reg_pix = data.reg_pix;
+						const seo_description = data.seo_description;
+						const main_page_url = data.page_url;
+						const page_content = data.page_content;
+						const updated_time = data.updated_time;
+						const fullname = capitalizeFirstLetterOfEachWord(data.fullname);
+						const formattedDate = formatDate(updated_time);
+						const blog_view = data.blog_view;
+						const documentStoragePath = data.documentStoragePath;
+
+						$('#blog_reg_title, #blog_top_title').html(reg_title);
+						$('#blog_seo_description').html(seo_description);
+						$('#blog_page_content').html(page_content);
+						$('#fullname').html(fullname);
+						$('#formattedDate').html(formattedDate);
+						$('#blog_view').html(blog_view);
+						$('#main_blog_preview').attr('src', documentStoragePath + '/' + reg_pix);
+
+						$('#blog-home-link').attr('href', website_url);
+						$('#blog-sermon-link').attr('href', website_url + '/blog');
+						$('#blog-sermon-title-link').attr('href', website_url + '/blog/' + main_page_url);
+					} else {
+						_actionAlert(message, false);
+					}
+				},
+				error: function (textStatus, errorThrown) {
+					console.error("AJAX Error: ", textStatus, errorThrown);
+					_actionAlert('An error occurred while processing your request: Please try again', false);
+				}
+			});
+		} catch (error) {
+			console.error("Error: ", error);
+			_actionAlert('An error occurred while processing your request: ' + error, false);
+		}
+	}
+}
+
+
+
+
+
+function _fetchBlogPictures(publish_id) {
+	const dataString = 'publish_id=' + publish_id;
+	try {
+		$.ajax({
+			type: "POST",
+			url: endPoint + '/site/blog/fetch-pages-pictures',
+			data: dataString,
+			dataType: "json",
+			cache: false,
+			headers: {
+				'apiKey': apiKey
+			},
+			success: function (info) {
+				const fetch = info.gallery;
+				const success = info.success;
+				const message = info.message;
+
+				let no = 0;
+				let text = '';
+				if (success === true) {
+					for (let i = 0; i < fetch.length; i++) {
+						no++
+						const publish_id = fetch[i].publish_id;
+						const pictures = fetch[i].pictures;
+						const documentStoragePath = fetch[i].documentStoragePath;
+
+						text +=
+							'<div class="each-img-div" title="Click to Preview" id="img' + no + '" onclick="_view_preview_img(' + "'" + 'img' + no + "'" + ')">' +
+							'<img src="' + documentStoragePath + '/' + pictures + '" alt="' + publish_id + '"/>' +
+							'</div>';
+					}
+					$('#fetchBlogPictures').html(text);
+				} else {
+					text +=
+						'<div class="false-notification-div">' +
+						"<p> " + message + " </p>" +
+						"</div>";
+					$('#fetchBlogPictures').html(text);
+				}
+				_slideImages();
+			},
+			error: function (textStatus, errorThrown) {
+				console.error("AJAX Error: ", textStatus, errorThrown);
+				_actionAlert('An error occurred while processing your request: Please try again', false);
+			}
+		});
+	} catch (error) {
+		console.error("Error: ", error);
+		_actionAlert('An error occurred while processing your request: ' + error, false);
+	}
+}
+
+
+
+
+
+
+
+

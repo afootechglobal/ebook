@@ -1,0 +1,15 @@
+		<div class="event-back-div animated fadeInUp" id="hide-index-event">
+                    <div class="inner-content" >
+                        <div class="inner-content-div-in">
+                            <div class="date-div date-div1">
+                                <div class="event-date" id="event_day">0</div>
+                                <div class="event-month" id="event_month">0</div>
+                            </div>
+
+                            <div class="event-div">
+                                <h4>UPCOMING EVENT: <br> <span id="reg_title">No Upcoming Event! Check Back Soon.</span></h4>
+                            </div>
+                        </div>
+                        <a href="<?php echo $website_url?>/event" title="NACOS Past Event">  <button class="index-event-btn"><i class="bi bi-calendar2-event"></i> View Our Past Event</button></a>
+                    </div>
+                </div>

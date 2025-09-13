@@ -1,0 +1,36 @@
+$amountPaymentQuery= "SELECT al.name AS level_name,
+									 MAX(p.id) AS payment_id,
+                                    MAX(p.amount) AS department_fee,
+                                    MIN(p.misc_amount_charged) AS charges,
+                                    MAX(p.created_at) AS latest_payment_date
+                                    
+                                FROM 
+                                    academic_level_payments alp
+                                JOIN 
+                                    academic_levels al ON alp.level_id = al.id
+                                JOIN 
+                                    payments p ON alp.payment_id = p.id
+                                WHERE 
+                                    al.name IN ('$level_id')
+                                GROUP BY 
+                                    al.name;";
+
+		$amountPaymentQuery="SELECT al.name AS level_name,
+									p.id AS payment_id,
+									p.amount AS department_fee,
+									p.misc_amount_charged AS charges,
+									p.created_at AS latest_payment_date
+								FROM 
+									academic_level_payments alp
+								JOIN 
+									academic_levels al ON alp.level_id = al.id
+								JOIN 
+									payments p ON alp.payment_id = p.id
+								WHERE 
+									al.code IN ('$level_id') AND
+									alp.created_at = (
+										SELECT MAX(alp2.created_at)
+										FROM academic_level_payments alp2
+										JOIN academic_levels al2 ON alp2.level_id = al2.id
+										WHERE al2.name = al.name
+									);";

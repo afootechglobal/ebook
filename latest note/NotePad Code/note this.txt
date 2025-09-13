@@ -1,0 +1,36 @@
+"2025/04/10 3:00:42 PM GMT+1","","Daniel","Shomoye","Aduragbemi ","shomoyeowolabi906@gmail.com","24/145/0115","ND 1","Full Time","08084165164","Male"
+"2025/04/10 3:05:35 PM GMT+1","","Daniel","Shomoye","Aduragbemi","danieladuragbemishomoye@gmail.com","24/145/0115","ND 1","Full Time","08084165164","Male"
+
+(LOWER(REPLACE(UUID(), '-', '')),"Oluwafemi","Oparinade","Samuel","Sundayfemi901@gmail.com","24/145/0128","ND 1","Full Time","09030150599","Male"),
+(LOWER(REPLACE(UUID(), '-', '')),"Grace","Ogunlana","Senami","ogunlanaOluwagbotemi@gmail.com","24/145/0112","ND 1","Full Time","09169251129","Female"),
+(LOWER(REPLACE(UUID(), '-', '')),"Ridwan ","Akintunde","Temidayo ","akintundetemidayor@gmail.com","24/145/0076","ND 1","Full Time","08029831876","Male"),
+
+LOWER(REPLACE(UUID(), '-', ''))
+
+ND 1 INSERT CODE
+INSERT INTO `users`(`id`, `firstname`, `lastname`, `othername`, `email`, `matric_number`, `level`, `programme_mode`, `phone`, `gender`) 
+VALUES
+
+HND 1 INSERT CODE
+INSERT INTO `users`(`id`, `firstname`, `lastname`, `othername`, `email`, `matric_number`, `level`, `programme_mode`, `phone`, `gender`,`course_of_study`) 
+VALUES
+
+UPDATE users SET programme_mode="full-time", status=1, created_at=NOW(), updated_at=NOW() WHERE programme_mode="Full Time";
+UPDATE users SET programme_mode="part-time", status=1, created_at=NOW(), updated_at=NOW() WHERE programme_mode="Part Time";
+
+UPDATE users SET programme_mode="full-time", status=1, created_at=NOW(), updated_at=NOW() WHERE status=0;
+UPDATE users SET programme_mode="part-time", status=1, created_at=NOW(), updated_at=NOW() WHERE status=0;
+
+$2y$12$XO28YFAzQvdCnagnhams9OA0tNPoWQ.M6wagpvt0wEbHEIqsOOXs2
+
+
+
+$2y$12$pN66Inujfo.zYuI8onw8gu7wMAny5r.Zy2ZL5R5K4cfuzWFRa0s/2
+
+
+
+
+$2y$12$nQkYN7wKkpyosNj0CqnqVugo7lLYquazZv1TeZ8OwA5/jRxjnJpo2
+
+
+22/105/01/F/0209 - not this

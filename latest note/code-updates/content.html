@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http: //www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<script>
+	//////////////////online constants///////////////////////
+	var website_url='https://webliststudio.com';
+	//const website_url='http://localhost/projects/webliststudio.com';
+	//const website_url='http://192.168.223.51/projects/webliststudio.com';
+    
+	var account_local_url=website_url+'/account/config/code'; /// For Admin local_url //
+	var admin_local_url=website_url+'/admin/config/code'; /// For Account local_url //
+	//var admin_local_url=website_url+'/admin/config/code'; /// For Account local_url //
+	//const index_local_url=website_url+'/config/code'; /// For Site local_url //
+	//const admin_local_portal_url=website_url+'/admin/a/config/code'; /// admin local portal url
+	//const admin_portal_url=website_url+'/admin/a'; /// admin portal url
+	//const admin_login_portal_url=website_url+'/admin'; /// For Admin local_url //
+</script>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="ROBOTS" content="ALL">
+<meta name="Engine" content="all">
+<meta name="distribution" content="global">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://webliststudio.com/all-images/images/icon.png" rel="shortcut icon" type="image-png"/>
+<link href="https://webliststudio.com/style/icons-1.10.2/font/bootstrap-icons.css" type="text/css" rel="stylesheet" >
+<link href="https://webliststudio.com/style/animate.css" type="text/css" rel="stylesheet" media="all">
+<link href="https://webliststudio.com/style/aos.css" type="text/css" rel="stylesheet" />
+<link href="https://webliststudio.com/style/paramount.css?v=10.29" type="text/css" rel="stylesheet" />
+<link href="https://webliststudio.com/account/style/main-style.css?v=10.29" type="text/css" rel="stylesheet" />
+<link href="https://webliststudio.com/account/style/dashboard-style.css?v=10.29" type="text/css" rel="stylesheet" />
+
+<script src="https://webliststudio.com/js/jquery-v3.6.1.min.js"></script>
+<script src="https://webliststudio.com/account/js/scripts.js?v=10.29"></script>
+
+
+<title>User Portal | Weblist Studio</title>
+</head>
+<body>
+    <div class="all-alert-back-div">
+    <div class="success-alert-div animated fadeInDown">
+        <div class="icon"><i class="bi-check-all"></i></div> 
+        <div class="text"><p>PASSWORD RESET SUCCESSFUL! Check your email to confirm.</p></div>
+    </div>
+</div>
+
+<div id="get-more-div" onclick="_alert_close(event);">
+    <div class="alert-loading-div">
+        <div class="icon"><img src="https://webliststudio.com/all-images/images/loading.gif" width="20px" alt="Loading"/></div> 
+        <div class="text"><p>LOADING...</p></div>
+    </div>
+</div>
+
+<div id="get-more-div-secondary">
+    <div class="alert-loading-div">
+        <div class="icon"><img src="https://webliststudio.com/all-images/images/loading.gif" width="20px" alt="Loading"/></div> 
+        <div class="text"><p>LOADING...</p></div>
+    </div>
+</div>
+
+
+
+<div class="sidenavdiv">
+    <div class="live-chat-back-div">
+
+    <a href="tel:1-800-658-5679" title="Call Customer Care">
+        <div class="chat-div">
+            <div class="icon-div" style="background:#008040;"><i class="bi-telephone-outbound"></i></div>
+            <div class="text">1-800-658-5679</div>
+          <br clear="all" />
+        </div>
+    </a>
+    <a href="https://api.whatsapp.com/" target="_blank" title="Whatsapp">
+        <div class="chat-div">
+            <div class="icon-div" style="background:#25D366;"><i class="bi-whatsapp"></i></div>
+            <div class="text">+234-812-700-0262</div>
+          <br clear="all" />
+        </div>
+    </a>
+
+    <a href="https://www.facebook.com/" target="_blank" title="Facebook">
+        <div class="chat-div">
+            <div class="icon-div" style="background:#2980b9;"><i class="bi-facebook"></i></div>
+            <div class="text">Facebook Page </div>
+          <br clear="all" />
+        </div>
+    </a>
+
+    <a href="https://twitter.com/" target="_blank" title="Twitter">
+        <div class="chat-div">
+            <div class="icon-div" style="background:#3498db;"><i class="bi-twitter"></i></div>
+            <div class="text">Twitter Page</div>
+          <br clear="all" />
+        </div>
+    </a>
+
+    <a href="https://www.instagram.com/" target="_blank" title="Instagram">
+        <div class="chat-div">
+            <div class="icon-div" style="background-image: linear-gradient(to right,#03F, #F0F);"><i class="bi-instagram"></i></div>
+            <div class="text">Instagram Page</div>
+          <br clear="all" />
+        </div>
+    </a>
+  
+</div>
+
+
+
+
+<div class="index-menu-back-div"> 
+    <div class="top-div">
+        <div class="logo-div">
+            <a href="https://webliststudio.com"><img src="https://webliststudio.com/all-images/images/logo.png" alt="Weblist Studio Logo"  class="animated zoomIn"/></a>   
+        </div>
+    </div>
+
+    <div class="div-in">
+        <div class="div">
+            <a href="https://webliststudio.com" title="Home Page">
+            <li ><i class="bi-house"></i> Home Page</li></a>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com/about" title="About Us">
+            <li ><i class="bi-person-hearts"></i> About Us</li></a>
+        </div>
+
+        <div class="div">
+            <li onclick="_open_li('hosting')"><i class="bi-hdd-rack-fill"></i> Hosting<i class="bi-plus" id="side-expand"></i></li>
+            <div class="sub-li" id="hosting-sub-li">              
+            </div>
+        </div>
+
+        <div class="div">
+            <li onclick="_open_li('domain')"><i class="bi-globe"></i> Domain<i class="bi-plus" id="side-expand"></i></li>
+            <div class="sub-li" id="domain-sub-li">                           
+            </div>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com/services/" title="Services">
+            <li ><i class="bi-activity"></i> Services</li></a>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com" title="Affliates">
+            <li ><i class="bi-person-check"></i> Affliates</li></a>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com/blog/" title="Blog">
+            <li ><i class="bi-flower2"></i> Blog</li></a>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com/contact-us" title="Blog">
+            <li ><i class="bi-headset"></i> Contact Us</li></a>
+        </div>
+
+        <div class="div">
+            <a href="https://webliststudio.com/faq" title="Frequently Asked Questions">
+            <li ><i class="bi-patch-question"></i> Frequently Asked Question</li></a>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="sidenavdiv-in" onclick="_close_side_nav()"></div>
+</div>
+
+
+
+<header class="fadeInDown animated">
+    <div class="header-div-in"> 
+        <div class="logo-div"><img src="https://webliststudio.com/all-images/images/logo.png" alt="Weblist Studio logo" /></div>
+
+        <div class="header-nav-div">
+            <div class="left-icon-div">
+                <div class="icon-div" onClick="" title="Products Switcher">
+                    <i class="bi-microsoft"></i> Products
+                </div>
+
+                <div class="icon-div cart-icon" onClick="" title="Cart">
+                    <i class="bi-cart"></i> 
+                </div>
+            </div>
+
+            <div class="left-icon-div" title="Click To View Profile">
+                <div class="profile-div">
+                    <div class="info-div">
+                        <h2>OLUWAGBENGA SUNDAY AFOLABI</h2>
+                        <div class="email">afootechglobal@gmail.com</div>
+                    </div>
+                    <div class="name-abbr"><span>OS</span></div>
+                </div>
+
+                <div class="icon-div dot-icon" onclick="_toggle_profile_pix_div()" title="View User Profile">
+                    <i class="bi-three-dots-vertical"></i> 
+                </div>
+            </div>
+
+            <div class="toggle-profile-div">
+                <div class="toggle-div-in">
+                    <div class="title-div">
+                        <div class="name-abbr"><span>OS</span></div>    
+                        <div class="info-div">
+                            <h2>OLUWAGBENGA SUNDAY AFOLABI</h2>
+                            <div class="email">afootechglobal@gmail.com</div>
+                        </div>
+                    </div>
+
+                    <div class="title-div center-div">
+                        <ul>
+                            <li title="Profile">Profile</li>
+                            <li title="Billings">Billings</li>
+                            <li title="Renewals">Renewals</li>
+                            <li title="Security">Security</li>
+                        </ul>
+                    </div>
+
+                    <div class="title-div bottom-div">
+                        <ul>
+                            <li title="Log Out">Log Out</li>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="side-nav-div animated fadeInLeft">
+    <div class="nav-back-div">
+        <div class="nav-div active-li" title="Dashboard" onclick="_closeAllSideLinks(); _getPage('dashboard','dashboard');" id="dashboard">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-speedometer2"></i> <span>Dashboard</span> </div>
+            </div>
+        </div>
+
+        <div class="nav-div" title="Domain" onclick="_expandSideLink('domains');" id="side-domain">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-globe2"></i> <span>Domain</span></div>
+                <i class="bi-chevron-right"></i>
+            </div>
+
+            <div class="dashboard-in" id="domains-li" style="display:none">
+                <div class="li-in" title="Buy New Domain" onclick="_getPage('new_domains','new_domains');" id="new_domains">Buy New Domain</div>
+                <div class="li-in" title="Transfer Domain" onclick="_getPage('transfer_domain','transfer_domain');" id="transfer_domain">Transfer Domain</div>
+                <div class="li-in" title="My Domains" onclick="_getPage('domains','domains');" id="domains">My Domains</div>
+            </div>
+        </div>
+
+        <div class="nav-div" title="Hosting" onclick="_expandSideLink('hostings');" id="side_hosting">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-hdd-rack"></i> Hosting</div>
+                <i class="bi-chevron-right"></i>
+            </div>
+
+            <div class="dashboard-in" id="hostings-li" style="display:none">
+                <div class="li-in active" title="Shared Hosting" onclick="_getPage('shared_hosting','shared_hosting');" id="shared_hosting">Shared Hosting</div>
+                <div class="li-in" title="Cloud Hosting" onclick="">Cloud Hosting</div>
+            </div>
+        </div>
+
+        <div class="nav-div" title="Hosting" onclick="_expandSideLink('emails');" id="side-hosting">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-envelope"></i> Email</div>
+                <i class="bi-chevron-right"></i>
+            </div>
+
+            <div class="dashboard-in" id="emails-li" style="display:none">
+                <div class="li-in" title="Buy a Product" onclick="">Buy a Product</div>
+                <div class="li-in" title="My Emails" onclick="">My Emails</div>
+            </div>
+        </div>
+
+        <div class="nav-div" title="Hosting" onclick="_expandSideLink('supports');" id="side-hosting">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-headset"></i> Support</div>
+                <i class="bi-chevron-right"></i>
+            </div>
+
+            <div class="dashboard-in" id="supports-li" style="display:none">
+                <div class="li-in" title="My Ticket" onclick="">My Ticket</div>
+                <div class="li-in" title="Status" onclick="">Status</div>
+            </div>
+        </div>
+
+        <div class="nav-div" title="Hosting" onclick="_expandSideLink('accounts');" id="side-hosting">
+            <div class="top-nav">
+                <div class="nav-in"><i class="bi-person"></i> Account</div>
+                <i class="bi-chevron-right"></i>
+            </div>
+
+            <div class="dashboard-in" id="accounts-li" style="display:none">
+                <div class="li-in" title="My Profile" onclick="_getPage('user_profile_Page','user_profile_Page');" id="user_profile_Page">My Profile</div>
+                <div class="li-in" title="Security" onclick="">Security</div>
+                <div class="li-in" title="Log Out" onclick="">Log Out</div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="content-div">
+        <div id="page-content">
+            <script>_getPage('dashboard','dashboard','');</script>	
+        </div> 
+    </div>
+    <script src="https://webliststudio.com/js/aos.js"></script>
+<script>
+AOS.init({
+  easing: 'ease-in-out-sine'
+});
+</script>
+</body>
+</html>
+
+

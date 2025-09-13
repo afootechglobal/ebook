@@ -1,0 +1,114 @@
+
+function _fetchLoginUser1() {
+	$("#login_fullname,#header_fullname").html("Loading...");
+	const dataString = "staff_id=" + login_staff_id;
+	try {
+		$.ajax({
+			type: "POST",
+			url: endPoint + '/admin/staff/fetch-staff',
+			data: dataString,
+			dataType: "json",
+			cache: false,
+			headers: {
+				'apiKey': apiKey,
+				'Authorization': 'Bearer ' + login_access_key
+			},
+			success: function (info) {
+				const success = info.success;
+				const message = info.message;
+
+				if (success == true) {
+					const data = info.data[0];
+					const staff_id = data.staff_id;
+					const fullname = capitalizeFirstLetterOfEachWord(data.fullname);
+					const phone = data.phone;
+					const email = data.email;
+					const address = data.address;
+					const position = data.position;
+					const profile_pix = data.profile_pix;
+					const role_id = data.role_id;
+					const role_name = data.role_name;
+					const status_id = data.status_id;
+					const status_name = data.status_name;
+					const created_time = data.created_time;
+					const last_login_time = data.last_login_time;
+					const documentStoragePath = data.documentStoragePath;
+
+					$("#login_fullname,#header_fullname,#pro_header_fullname,#login_user_fullname").html(fullname);
+					$('#login_user_last_time').html(last_login_time);
+					$('#login_user_status_name').html(status_name);
+					$("#pro_header_staff_id").html(staff_id);
+					$("#login_role_name").html(role_name);
+					$("#pro_header_phone").html(phone);
+
+					$('#current_user_passport2').html('<img id="passportimg1" src="' + documentStoragePath + "/" + profile_pix + '"/>');
+					$('#updt_fullname').val(fullname);
+					$('#updt_mobile').val(phone);
+					$('#updt_email').val(email);
+					$('#updt_address').val(address);
+					$('#updt_position').val(position);
+					$('#updt_status_id').append('<option value="' + status_id + '" selected="selected">' + status_name + "</option>");
+					$('#updt_role_id').append('<option value="' + role_id + '" selected="selected">' + role_name + "</option>");
+					$('#s_staff_id').val(staff_id);
+					$('#s_created_time').val(created_time);
+					$('#s_last_login').val(last_login_time);
+					_getHeaderPix(documentStoragePath, profile_pix);
+
+				} else {
+					const response = info.response;
+					if (response < 100) {
+						_logout();
+					} else {
+						_actionAlert(message, false);
+					}
+				}
+			},
+			error: function (textStatus, errorThrown) {
+				console.error("AJAX Error: ", textStatus, errorThrown);
+				_actionAlert('An error occurred while processing your request: Please try again', false);
+			}
+		});
+	} catch (error) {
+		console.error("Error: ", error);
+		_actionAlert('An error occurred while processing your request: ' + error, false);
+	}
+}
+
+
+
+
+
+
+    $(document).ready(function() {
+        let isExpanded = false;
+        $("#toggleNav").click(function() {
+            isExpanded = !isExpanded;
+            // Toggle the expanded class for width
+            $("#sideNav").toggleClass("expanded", isExpanded);
+            $("#content-slide").toggleClass("expandPageContent", isExpanded);
+            // Change the icon direction based on state
+            $("#toggleNav i").toggleClass("bi-box-arrow-right", !isExpanded)
+                .toggleClass("bi-box-arrow-left", isExpanded);
+        });
+    });
+
+    $(document).ready(function() {
+        let isExpanded = localStorage.getItem("sideNavState") === "expanded";
+
+        $("#sideNav, #content-slide").toggleClass("expanded expandPageContent", isExpanded);
+        $("#toggleNav i").toggleClass("bi-box-arrow-right", !isExpanded)
+            .toggleClass("bi-box-arrow-left", isExpanded);
+
+        $("#toggleNav").click(function() {
+            isExpanded = !isExpanded;
+        //    $("#sideNav, #content-slide").toggleClass("expanded expandPageContent");
+        // Animate width smoothly instead of instant toggle
+        $("#sideNav").animate({ width: isExpanded ? "180px" : "90px" }, "slow");
+        $("#content-slide").animate({ width: isExpanded ? "calc(100% - 480px)" : "calc(100% - 390px)" }, "slow");
+
+
+            $("#toggleNav i").toggleClass("bi-box-arrow-right", !isExpanded)
+                .toggleClass("bi-box-arrow-left", isExpanded);
+            localStorage.setItem("sideNavState", isExpanded ? "expanded" : "collapsed");
+        });
+    });
