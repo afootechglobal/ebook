@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Application Form</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: "Times New Roman", serif;
+      margin: 30px;
+      background: #f9f9f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      background: #fff;
+      border: 1px solid #000;
+    }
+    h2, h3 {
+      text-align: center;
+      margin: 5px 0;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    p.note {
+      font-style: italic;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    .label {
+      display: inline-block;
+      min-width: 280px;
+    }
+    .input-line {
+      display: inline-block;
+      border-bottom: 1px dotted #000;
+      min-width: 300px;
+      padding: 2px 5px;
+    }
+    textarea.input-line {
+      width: 100%;
+      min-height: 40px;
+      border: none;
+      border-bottom: 1px dotted #000;
+      resize: none;
+    }
+    .row {
+      display: flex;
+      gap: 15px;
+    }
+    .office-use {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #000;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #0073e6;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #005bb5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="formContainer">
+  <h2>MOSHOOD ABIOLA POLYTECHNIC, ABEOKUTA</h2>
+  <h3>DIRECTORATE OF SIWES</h3>
+  <h3>APPLICATION FORM FOR THE COLLECTION OF COMPLETION CERTIFICATE</h3>
+  <p>(Attach a clear photocopy of your payment receipt for the Certificate.)</p>
+  <p class="note">NB: Complete this form in BLOCK LETTERS. Ensure you write legibly.</p>
+
+  <div class="form-group">1. Name: 
+    <span class="input-line" contenteditable="true">Afolabi</span>
+    <span class="input-line" contenteditable="true">Abayomi</span>
+    <span class="input-line" contenteditable="true">O.</span>
+  </div>
+
+  <div class="form-group">2. Matriculation Number: 
+    <span class="input-line" contenteditable="true">MAP/CSC/20/1234</span>
+  </div>
+
+  <div class="form-group">3. Department: 
+    <span class="input-line" contenteditable="true">Computer Science</span>
+  </div>
+
+  <div class="form-group">4. Name of the Organization (IT): 
+    <span class="input-line" contenteditable="true">ABC Tech Solutions Ltd.</span>
+  </div>
+
+  <div class="form-group">5. Department in the Organization: 
+    <span class="input-line" contenteditable="true">Software Development</span>
+  </div>
+
+  <div class="form-group">6. Location (Traceable Address): 
+    <textarea class="input-line" contenteditable="true">12, Adebowale Street, Ikeja, Lagos</textarea>
+  </div>
+
+  <div class="form-group">7. Period of Industrial Attachment: 
+    From: <span class="input-line" contenteditable="true">01/03/2024</span> 
+    To: <span class="input-line" contenteditable="true">01/09/2024</span>
+  </div>
+
+  <div class="form-group">8. Attestation (Signature & Date): 
+    <span class="input-line" contenteditable="true">Signed: Abayomi Afolabi - 13/09/2025</span>
+  </div>
+
+  <div class="office-use">
+    <h3>FOR OFFICE USE</h3>
+    <div class="form-group">Date Received: 
+      <span class="input-line" contenteditable="true"></span>
+    </div>
+    <div class="form-group">Comment/Observation: 
+      <span class="input-line" contenteditable="true"></span>
+    </div>
+    <div class="form-group">Processed by (Name): 
+      <span class="input-line" contenteditable="true"></span>
+    </div>
+    <div class="form-group">Status/Designation: 
+      <span class="input-line" contenteditable="true"></span>
+    </div>
+  </div>
+</div>
+
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+
+<script>
+  async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const form = document.getElementById("formContainer");
+
+    await html2canvas(form).then(canvas => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 190;
+      const pageHeight = 295;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save("Application_Form.pdf");
+    });
+  }
+</script>
+
+</body>
+</html>

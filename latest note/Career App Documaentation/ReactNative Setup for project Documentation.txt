@@ -64,7 +64,8 @@ Set-ExecutionPolicy Unrestricted -Scope CurrentUser
 TO DEPLOY PROJECT ON EXPO GO FIRST TIME
 Step 1: npm install -g eas-cli
 Step 2: npx eas login
-Step 3: npx eas build:configure
+Step 3: npx eas build:configure or eas build --platform android --profile production
+
 Step 4: update manually the eas.json file for deployment process. Goto Step 4(eas.json) below
 
 --------------- FOR ALL PLATFORM (IOS OR ANDRIOD) DEVICE ----------------------------

@@ -1,0 +1,102 @@
+function _getMyAttendance() {
+	var department_id = loginUserInfoSession.staffData[0].department_id;
+	var level_id = $('#select_level_id').val();
+
+	if (!department_id) {
+		// do nothing
+		return;
+	}
+	if (!level_id) {
+		_warningAlert('select_level_id', 'LEVEL REQUIRED!', 'Select level to continue');
+		return;
+	}
+	$('#select_level_id').removeClass('complain');
+
+	var btn_text = $('#loading_btn').html();
+	$('#loading_btn').html('<i class="fa fa-spinner fa-spin"></i> LOADING...').prop('disabled', true);
+
+	var action = 'my-attendance-list';
+	var dataString = 'department_id=' + department_id + '&level_id=' + level_id;
+	$.ajax({
+		type: "POST",
+		url: endPoint + '/admin/attendance/' + action,
+		data: dataString,
+		dataType: "json",
+		cache: false,
+		headers: {
+			'apiKey': apiKey,
+			'Authorization': 'Bearer ' + login_access_key
+		},
+		success: function (info) {
+			var responseCode = info.code;
+			if (responseCode < 100) {
+				_logOut();
+			} else {
+				const { success, message, department_name, level_name, myAttendanceData: getAllData } = info;
+				if (success == true) {
+					const getAttendanceData = {
+						success: success,
+						message: message,
+						department_name: department_name,
+						level_name: level_name,
+						level_name: level_name,
+						myAttendanceData: getAllData,
+					}
+					sessionStorage.setItem("getAttendanceData", JSON.stringify(getAttendanceData));
+					_alertClose();
+					_getPage('my_attendance', 'my_attendance', 'attendance', '');
+				} else {
+					_warningAlert('select_level_id', message1, message2);
+					$('#loading_btn').html(btn_text).prop('disabled', false);
+				}
+			}
+		},
+		error: function (error) {
+			console.log(error);
+			_warningAlert(null, 'ERROR!', 'An error occurred. Please try again');
+		}
+	});
+}
+
+
+function _getFetchMyAttendanceDetails() {
+const getAttendanceData = JSON.parse(sessionStorage.getItem("getAttendanceData"));
+const { success, message, department_name, level_name, myAttendanceData } = getAttendanceData;
+	var no = 0;
+	var text = '';
+	if (success == true) {
+		for (var i = 0; i < myAttendanceData.length; i++) {
+			no++;
+			var level_id = myAttendanceData[i].level_id.toUpperCase();
+			var semester_name = myAttendanceData[i].semester_name.toUpperCase();
+			var course_id = myAttendanceData[i].course_id.toUpperCase();
+			var course_code = myAttendanceData[i].course_code.toUpperCase();
+			var course_title = myAttendanceData[i].course_title.toUpperCase();
+			var course_unit = myAttendanceData[i].course_unit.toUpperCase();
+			var staff_id = myAttendanceData[i].staff_id.toUpperCase();
+			var staff_name = myAttendanceData[i].staff_name.toUpperCase();
+			var lectures_option_name = myAttendanceData[i].lectures_option_name.toUpperCase();
+			var status_name = myAttendanceData[i].status_name.toUpperCase();
+
+			text +=
+				'<tr class="data-row">' +
+				'<td>' + no + '</td>' +
+				'<td>' + level_id + '</td>' +
+				'<td>' + semester_name + '</td>' +
+				'<td>' + course_code + '</td>' +
+				'<td>' + course_title + '</td>' +
+				'<td>' + course_unit + '</td>' +
+				'<td>' + lectures_option_name + '</td>' +
+				'<td class="' + status_name + '" title="VIEW STAFF PROFILE" onclick="_getFormWithId(' + "'staff_profile'" + "," + "'" + staff_id + "'" + ')">' + staff_name + '</td>' +
+				'<td><button class="btn" onclick="_getPageWithId(' + "'student_attendance'" + "," + "'" + [staff_id, course_id] + "'" + ')"><i class="bi bi-eye"></i> VIEW</button></td>' +
+				// '<td><button class="btn" onclick="_getForm(' + "'set_attendance_form'" + ')"><i class="bi bi-check"></i> SET ATTENDANCE</button></td>' +
+				'</tr>';
+		}
+	} else {
+		text = '<div class="false-notification-div">' +
+			'<p> ' + message + ' </p>' +
+			'</div>';
+	}
+	$('#fetch-my-attendance-details').html(text);
+
+}

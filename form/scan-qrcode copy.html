@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Certificate with QR</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .certificate-container {
+      width: 210mm;
+      min-height: 297mm;
+      margin: auto;
+      padding: 20px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      background: #fff;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    #reader {
+      width: 300px;
+      margin: 30px auto;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      background: linear-gradient(to right, #002F45, #47A8BF);
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Student Certificate</h1>
+
+  <!-- Certificate Area -->
+  <div id="certificateArea" class="certificate-container">
+    <h2>Certificate of Completion</h2>
+    <p><strong>Certificate No:</strong> MAP/IT/1656</p>
+    <p><strong>Student:</strong> John Doe</p>
+    <div id="qrcode"></div>
+  </div>
+
+  <!-- Print Button -->
+  <button class="btn" id="printBtn">Print Certificate</button>
+
+  <!-- Scanner Area -->
+  <h2>Scan Certificate QR Code</h2>
+  <div id="reader"></div>
+  <p id="scanResult"></p>
+
+  <!-- jQuery + QR Code Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <script>
+  $(document).ready(function(){
+      // Example student data
+      var student = {
+          id: "MAP/IT/1656",
+          name: "John Doe",
+          course: "Information Technology",
+          graduation: "2025-09-14"
+      };
+
+      // Generate QR Code
+      $("#qrcode").empty();
+      new QRCode(document.getElementById("qrcode"), {
+          text: JSON.stringify(student), // full JSON data
+          width: 120,
+          height: 120,
+          colorDark : "#000000",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+      });
+
+      // Print button
+      $("#printBtn").on("click", function(){
+          var printContents = $("#certificateArea").html();
+          var originalContents = $("body").html();
+          $("body").html(printContents);
+          window.print();
+          $("body").html(originalContents);
+          location.reload();
+      });
+
+      // QR Scanner
+      function onScanSuccess(decodedText, decodedResult) {
+          $("#scanResult").text("Scanned Data: " + decodedText);
+          try {
+              var data = JSON.parse(decodedText);
+              $("#scanResult").append(
+                  "<br><strong>Certificate No:</strong> " + data.id +
+                  "<br><strong>Name:</strong> " + data.name +
+                  "<br><strong>Course:</strong> " + data.course +
+                  "<br><strong>Graduation:</strong> " + data.graduation
+              );
+          } catch(e) {
+              // if not JSON
+              console.log("Raw scan:", decodedText);
+          }
+      }
+
+      function onScanError(errorMessage) {
+          // console.log("Scan error:", errorMessage);
+      }
+
+      let html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader", { fps: 10, qrbox: 250 });
+      html5QrcodeScanner.render(onScanSuccess, onScanError);
+  });
+  </script>
+</body>
+</html>
