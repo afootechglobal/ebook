@@ -1,0 +1,134 @@
+<?php require_once '../../config/connection.php';?>
+<?php require_once '../../config/admin-session-check.php';?>
+<?php
+////////////////////////////////////////////////////////
+///// check for API security
+if ($apiKey!=$expected_api_key){/// start if 0
+	$response['response']=98;
+	$response['success']=false;
+	$response['message']="SECURITY ACCESS DENIED! You are not allowed to execute this command due to security bridge."; 
+}else{/// else if 0
+
+
+	if($check==0){ /// start if 1
+		$response['response']=99; 
+		$response['success']=false;
+		$response['message']="SESSION EXPIRED! Please LogIn Again.";
+	}else{/// else if 1
+
+		//////////////////declaration of variables//////////////////////////////////////
+		
+		$tutorial_id=trim($_POST['tutorial_id']);
+		$quiz_question_template=$_FILES['quiz_question_template']['name'];
+		///////////////////////////////////////////////////////////////////////////////
+		if(empty($tutorial_id)){ ///start if 2
+			$response['response']=101;
+			$response['success']=false;
+			$response['message']="TUTORIAL ID REQUIRED! Provide tutorialID and try again."; 
+		}elseif(empty($quiz_question_template)){ ///else if 2
+			$response['response']=102;
+			$response['success']=false;
+			$response['message']="QUESTION TEMPLATE REQUIRED! Upload question template and try again.";
+		}else{ ///else if 2
+
+			$datetime=date("Ymdhi");
+
+			$tutorial_array=$callclass->_get_tutorial_details($conn, $tutorial_id);
+			$tutorial_array = json_decode($tutorial_array, true);
+			$department_id= $tutorial_array[0]['department_id'];
+			$class_id= $tutorial_array[0]['class_id'];
+			$subject_id= $tutorial_array[0]['subject_id'];
+			$term_id= $tutorial_array[0]['term_id'];
+			$week_id= $tutorial_array[0]['week_id'];
+			$topic= $tutorial_array[0]['topic'];
+			$duration= $tutorial_array[0]['duration'];
+
+
+			$allowedExts = array("csv","dat");
+			$extension = pathinfo($_FILES['quiz_question_template']['name'], PATHINFO_EXTENSION);
+			
+			if (in_array($extension, $allowedExts)){
+					/// open the file
+				$file = fopen($_FILES["quiz_question_template"]["tmp_name"], "r");
+				///upload the file
+				$quiz_question_template = $tutorial_id.'_'.$datetime.'_question.'.$extension;
+				$cbtQuestionTemplatePath= $cbtQuestionTemplatePath . $quiz_question_template;
+				move_uploaded_file($_FILES["quiz_question_template"]["tmp_name"], $cbtQuestionTemplatePath);
+
+				/// load the questions
+				$no=0;
+				while (($emapData = fgetcsv($file, 10000000, ",")) !== FALSE) {
+					$no++;
+
+					if($no>1){
+						/////////////////////geting sequence//////////////////////////
+						$sequence=$callclass->_get_sequence_count($conn, 'QUES');
+						$array = json_decode($sequence, true);
+						$no= $array[0]['no'];
+						$question_id='QUES'.$no.$datetime;
+
+						$question_text=str_replace("'", "\'", $emapData[0]);
+						$option_a=str_replace("'", "\'", $emapData[1]);
+						$option_b=str_replace("'", "\'", $emapData[2]);
+						$option_c=str_replace("'", "\'", $emapData[3]);
+						$option_d=str_replace("'", "\'", $emapData[4]);
+						$option_e=str_replace("'", "\'", $emapData[5]);
+						$answer=trim($emapData[6]);
+
+						mysqli_query($conn,"INSERT INTO `cbt_question_bank_tab`
+						(`question_id`, `department_id`, `class_id`, `subject_id`, `term_id`, `week_id`, `tutorial_id`, `question_text`, `answer`, `created_time`, `updated_time`, `modified_by`) VALUES
+						('$question_id',  '$department_id', '$class_id','$subject_id', '$term_id', '$week_id', '$tutorial_id', '$question_text', '$answer', NOW(), NOW(), '$login_staff_id')")or die (mysqli_error($conn));
+					
+
+						//// for option A
+						mysqli_query($conn,"INSERT INTO `cbt_options_tab`
+						(`question_id`, `option_id`, `option_text`) VALUES
+						('$question_id',  'A', '$option_a')")or die (mysqli_error($conn));
+
+						//// for option B
+						mysqli_query($conn,"INSERT INTO `cbt_options_tab`
+						(`question_id`, `option_id`, `option_text`) VALUES
+						('$question_id',  'B', '$option_b')")or die (mysqli_error($conn));
+
+						
+						//// for option C
+						if(!empty($option_c)){ 
+							mysqli_query($conn,"INSERT INTO `cbt_options_tab`
+							(`question_id`, `option_id`, `option_text`) VALUES
+							('$question_id',  'C', '$option_c')")or die (mysqli_error($conn));
+						}
+
+						//// for option d
+						if(!empty($option_d)){ 
+							mysqli_query($conn,"INSERT INTO `cbt_options_tab`
+							(`question_id`, `option_id`, `option_text`) VALUES
+							('$question_id',  'D', '$option_d')")or die (mysqli_error($conn));
+						}
+
+						//// for option E
+						if(!empty($option_e)){
+							mysqli_query($conn,"INSERT INTO `cbt_options_tab`
+							(`question_id`, `option_id`, `option_text`) VALUES
+							('$question_id',  'E', '$option_e')")or die (mysqli_error($conn));
+						}
+					
+
+					}
+				
+				}
+				fclose($file);
+
+				$response['response']=200;
+				$response['success']=true;
+				$response['message']="QUIZ QUESTION UPLOADED!";
+			}else{
+				$response['response']=103;
+				$response['success']=false;
+				$response['message']="INVALID QUESTION TEMPLATE FORMAT!";
+			}
+		} ///end if 2
+		
+	}/// end if 1
+}/// end if 0
+echo json_encode($response);
+?>
